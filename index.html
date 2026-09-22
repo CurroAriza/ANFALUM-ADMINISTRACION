@@ -43,18 +43,30 @@ img{max-width:100%}
 body{margin:0;background:var(--papel);color:var(--ink);
  font-family:"Source Sans 3",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
  font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
-.env{max-width:1040px;margin:0 auto;padding:0 16px;padding-block:26px 60px}
+.env{max-width:1080px;margin:0 auto;padding:0 16px;padding-block:24px 60px}
 .mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;font-size:.92em}
 .num{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
-header.top{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;
- padding-bottom:16px;border-bottom:1px solid var(--linea);margin-bottom:22px}
+
+header.top{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:14px}
 header.top svg{flex:none}
 h1{font-size:22px;margin:0;letter-spacing:-.3px;font-weight:700;text-wrap:balance}
 .lede{color:var(--ink-3);font-size:13px;margin:3px 0 0}
 .sello{margin-left:auto;text-align:right;font-size:12px;color:var(--ink-3);line-height:1.5}
 .sello b{display:block;color:var(--ink);font-size:13px}
+
+nav.pest{display:flex;gap:2px;border-bottom:1px solid var(--linea);margin-bottom:18px;
+ overflow-x:auto;padding-bottom:0}
+nav.pest button{all:unset;cursor:pointer;padding:8px 14px;font-size:14px;color:var(--ink-3);
+ border-bottom:2px solid transparent;white-space:nowrap;display:flex;gap:7px;align-items:center}
+nav.pest button:hover{color:var(--ink)}
+nav.pest button[aria-selected="true"]{color:var(--azul-alto);font-weight:600;border-bottom-color:var(--azul)}
+nav.pest button:focus-visible{outline:2px solid var(--azul);outline-offset:-2px;border-radius:4px}
+nav.pest .cuenta{font-size:11.5px;color:var(--ink-3);font-variant-numeric:tabular-nums;
+ background:var(--superficie-2);border:1px solid var(--linea);border-radius:9px;padding:0 6px}
+
 h2{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);
- margin:30px 0 9px;font-weight:700}
+ margin:26px 0 9px;font-weight:700}
+h2:first-child{margin-top:0}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;
  background:var(--linea);border:1px solid var(--linea);border-radius:6px;overflow:hidden}
 .tile{background:var(--superficie);padding:12px 15px}
@@ -63,15 +75,24 @@ h2{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-
 .tile dd small{font-size:12px;color:var(--ink-3);font-weight:400;margin-left:5px}
 .tile.bien dd{color:var(--verde)} .tile.aviso dd{color:var(--ambar)}
 .tile.mal dd{color:var(--rojo)} .tile.acento dd{color:var(--azul)}
+
 .caja{background:var(--superficie);border:1px solid var(--linea);border-radius:6px;overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:13px}
 thead th{background:var(--superficie-2);text-align:left;font-weight:600;font-size:10.5px;
  text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);padding:7px 10px;
  border-bottom:1px solid var(--linea);white-space:nowrap}
+thead th.ord{cursor:pointer;user-select:none}
+thead th.ord:hover{color:var(--ink)}
+thead th.ord::after{content:'';opacity:.35;margin-left:5px}
+thead th.ord[data-dir="asc"]::after{content:'▲';opacity:.9}
+thead th.ord[data-dir="desc"]::after{content:'▼';opacity:.9}
 tbody td{padding:6px 10px;border-bottom:1px solid var(--linea-suave)}
 tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:var(--superficie-2)}
 tfoot td{padding:8px 10px;border-top:1px solid var(--linea);font-weight:600;background:var(--superficie-2)}
 .nombre{font-weight:600} .dim{color:var(--ink-3);font-size:12px}
+.vacio{padding:30px 16px;text-align:center;color:var(--ink-3)}
+
 .pill{display:inline-block;padding:1px 7px;border-radius:9px;font-size:11px;font-weight:600;
  white-space:nowrap;border:1px solid transparent}
 .pill.pend{background:var(--ambar-suave);color:var(--ambar);border-color:var(--ambar)}
@@ -79,10 +100,18 @@ tfoot td{padding:8px 10px;border-top:1px solid var(--linea);font-weight:600;back
 .pill.cobr{background:var(--verde-suave);color:var(--verde);border-color:var(--verde)}
 .pill.devu{background:var(--rojo-suave);color:var(--rojo);border-color:var(--rojo)}
 .pill.gris{background:var(--superficie-2);color:var(--ink-3);border-color:var(--linea)}
-.nota{margin-top:34px;padding-top:14px;border-top:1px solid var(--linea);
- font-size:12px;color:var(--ink-3);max-width:62ch}
-.nota b{color:var(--ink-2)}
-.barra{display:flex;height:9px;border-radius:5px;overflow:hidden;border:1px solid var(--linea);margin:12px 0 0}
+
+.filtros{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+input,select{font:inherit;color:var(--ink);background:var(--superficie);
+ border:1px solid var(--linea);border-radius:5px;padding:5px 9px}
+input:focus,select:focus{outline:2px solid var(--azul);outline-offset:-1px;border-color:var(--azul)}
+input[type="search"]{min-width:230px}
+button.btn{all:unset;cursor:pointer;padding:6px 12px;border-radius:5px;font-size:13.5px;font-weight:600;
+ border:1px solid var(--linea);background:var(--superficie);color:var(--ink)}
+button.btn:hover{border-color:var(--ink-3)}
+button.btn:focus-visible{outline:2px solid var(--azul);outline-offset:1px}
+
+.barra{display:flex;height:9px;border-radius:5px;overflow:hidden;border:1px solid var(--linea);margin:14px 0 0}
 .barra i{display:block}
 .leyenda{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--ink-3);margin-top:7px}
 .leyenda span::before{content:'';display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px}
@@ -90,67 +119,360 @@ tfoot td{padding:8px 10px;border-top:1px solid var(--linea);font-weight:600;back
 .leyenda .l2::before{background:var(--azul)}
 .leyenda .l3::before{background:var(--ambar)}
 .leyenda .l4::before{background:var(--rojo)}
-@media (max-width:620px){ .sello{margin-left:0;text-align:left} }
+.dos{display:grid;grid-template-columns:1fr 1fr;gap:0 20px}
+.nota{margin-top:32px;padding-top:14px;border-top:1px solid var(--linea);
+ font-size:12px;color:var(--ink-3);max-width:62ch}
+.nota b{color:var(--ink-2)}
+@media (max-width:760px){ .dos{grid-template-columns:1fr} .sello{margin-left:0;text-align:left} }
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 
+
 <div class="env">
-<header class="top">
-  <svg width="30" height="30" viewBox="0 0 48 48" aria-hidden="true">
-    <path d="M6 42V22a18 18 0 0 1 36 0v20h-7V22a11 11 0 0 0-22 0v20z" fill="#e9a12c"/>
-    <path d="M24 32a7 7 0 0 1 7 7v3H17v-3a7 7 0 0 1 7-7z" fill="#27578f"/>
-  </svg>
-  <div>
-    <h1>Cobros a asociados</h1>
-    <p class="lede">ANFALUM · Asociación Española de Fabricantes de Iluminación</p>
+  <header class="top">
+    <svg width="30" height="30" viewBox="0 0 48 48" aria-hidden="true">
+      <path d="M6 42V22a18 18 0 0 1 36 0v20h-7V22a11 11 0 0 0-22 0v20z" fill="#e9a12c"/>
+      <path d="M24 32a7 7 0 0 1 7 7v3H17v-3a7 7 0 0 1 7-7z" fill="#27578f"/>
+    </svg>
+    <div>
+      <h1>Cobros a asociados</h1>
+      <p class="lede">ANFALUM · Asociación Española de Fabricantes de Iluminación</p>
+    </div>
+    <div class="sello" id="sello"></div>
+  </header>
+  <nav class="pest" id="pest" role="tablist"></nav>
+  <div id="vista"></div>
+  <p class="nota" id="nota"></p>
+</div>
+
+<script id="datos" type="application/json">{"generado":"2026-09-22","facturas":[{"num":"F260001","fecha":"2026-07-06","vto":"2026-07-07","nombre":"AERLUX ILUMINACION, S.L.","cif":"B99443384","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":1484.42,"estado":"En remesa","fcobro":"","banco":"Sabadell","forma":"Recibo domiciliado"},{"num":"F260002","fecha":"2026-07-06","vto":"2026-07-07","nombre":"ALBEROLA VERDU, S.L.","cif":"B97130181","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":1712.7,"estado":"En remesa","fcobro":"","banco":"Sabadell","forma":"Recibo domiciliado"},{"num":"F260003","fecha":"2026-07-06","vto":"2026-07-07","nombre":"ANTARES ILUMINACION, S.A.","cif":"A46648507","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":3425.58,"estado":"En remesa","fcobro":"","banco":"Sabadell","forma":"Recibo domiciliado"},{"num":"F260004","fecha":"2026-07-06","vto":"2026-07-07","nombre":"ARTESOLAR ILUMINACION, S.A.","cif":"A45708617","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":1141.86,"estado":"En remesa","fcobro":"","banco":"Sabadell","forma":"Recibo domiciliado"},{"num":"F260005","fecha":"2026-07-06","vto":"2026-07-07","nombre":"BJB PROCESA, S.A.","cif":"A08467003","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":1141.86,"estado":"En remesa","fcobro":"","banco":"Sabadell","forma":"Recibo domiciliado"},{"num":"F260006","fecha":"2026-07-06","vto":"2026-07-07","nombre":"BENITO URBAN, S.L.U.","cif":"B59987529","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":1500.0,"estado":"En remesa","fcobro":"","banco":"Sabadell","forma":"Recibo domiciliado"},{"num":"F260007","fecha":"2026-07-06","vto":"2026-07-07","nombre":"C & G CARANDINI, S.A.","cif":"A08015166","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":1712.79,"estado":"En remesa","fcobro":"","banco":"Sabadell","forma":"Recibo domiciliado"},{"num":"F260008","fecha":"2026-07-06","vto":"2026-07-07","nombre":"C.M. SALVI, S.L","cif":"B58586413","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":1712.79,"estado":"En remesa","fcobro":"","banco":"Sabadell","forma":"Recibo domiciliado"},{"num":"F260009","fecha":"2026-07-06","vto":"2026-07-07","nombre":"DAISALUX, S.A.","cif":"A01040310","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":2169.54,"estado":"En remesa","fcobro":"","banco":"Sabadell","forma":"Recibo domiciliado"},{"num":"F260010","fecha":"2026-07-06","vto":"2026-07-07","nombre":"ELECTRO ZEMPER, S.A.","cif":"A28559474","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":1712.79,"estado":"En remesa","fcobro":"","banco":"Sabadell","forma":"Recibo domiciliado"},{"num":"F260011","fecha":"2026-07-06","vto":"2026-07-07","nombre":"ELECTRONICA OLFER, S.L.","cif":"B28380921","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":2169.54,"estado":"En remesa","fcobro":"","banco":"Sabadell","forma":"Recibo domiciliado"},{"num":"F260012","fecha":"2026-07-06","vto":"2026-07-07","nombre":"ERCO ILUMINACION, S.A.","cif":"A08345241","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":1141.86,"estado":"En remesa","fcobro":"","banco":"Sabadell","forma":"Recibo domiciliado"},{"num":"F260013","fecha":"2026-07-06","vto":"2026-07-07","nombre":"FAEBER LIGHTING SYSTEM, S.A.","cif":"A78228947","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":570.93,"estado":"Pendiente","fcobro":"","banco":"","forma":""},{"num":"F260014","fecha":"2026-07-06","vto":"2026-07-07","nombre":"GEWIS IBERICA, S.A.","cif":"A80075997","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":1712.79,"estado":"Cobrada","fcobro":"2026-08-26","banco":"Santander","forma":"Transferencia"},{"num":"F260015","fecha":"2026-07-06","vto":"2026-07-07","nombre":"PRILUX LIGHTING S.L.(U)","cif":"B80401136","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":2169.54,"estado":"En remesa","fcobro":"","banco":"Sabadell","forma":"Recibo domiciliado"},{"num":"F260016","fecha":"2026-07-06","vto":"2026-07-07","nombre":"FEILO SYLVANIA SPAIN, S.A.U.","cif":"A28075083","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":2169.54,"estado":"En remesa","fcobro":"","banco":"Sabadell","forma":"Recibo domiciliado"},{"num":"F260017","fecha":"2026-07-06","vto":"2026-07-07","nombre":"HERMINIO GONZALEZ E HIJOS","cif":"B78595519","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":1141.86,"estado":"Cobrada","fcobro":"2026-07-28","banco":"Santander","forma":"Transferencia"},{"num":"F260018","fecha":"2026-07-06","vto":"2026-07-07","nombre":"HISPANICA DEL LED, S.L.","cif":"B85788651","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":1484.42,"estado":"En remesa","fcobro":"","banco":"Sabadell","forma":"Recibo domiciliado"},{"num":"F260019","fecha":"2026-07-06","vto":"2026-07-07","nombre":"ILUMINACION DISANO, S.A.","cif":"A60157468","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":2169.54,"estado":"En remesa","fcobro":"","banco":"Sabadell","forma":"Recibo domiciliado"},{"num":"F260020","fecha":"2026-07-06","vto":"2026-07-07","nombre":"ILUMINIA SOLUTIONS, S.L.","cif":"B73782260","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":1712.79,"estado":"En remesa","fcobro":"","banco":"Sabadell","forma":"Recibo domiciliado"},{"num":"F260021","fecha":"2026-07-06","vto":"2026-07-07","nombre":"IMPREX EUROPE,S.L.","cif":"B28115764","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":761.24,"estado":"Cobrada","fcobro":"2026-07-27","banco":"Santander","forma":"Transferencia"},{"num":"F260022","fecha":"2026-07-06","vto":"2026-07-07","nombre":"LEDVANCE Ligthing, S.A. (Unipersonal)","cif":"A28006542","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":3425.58,"estado":"Cobrada","fcobro":"2026-07-27","banco":"Santander","forma":"Transferencia"},{"num":"F260023","fecha":"2026-07-06","vto":"2026-07-07","nombre":"LEGRAND GROUP ESPAÑA, S.L.","cif":"B08272064","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":1712.79,"estado":"En remesa","fcobro":"","banco":"Sabadell","forma":"Recibo domiciliado"},{"num":"F260024","fecha":"2026-07-06","vto":"2026-07-07","nombre":"LIGHT ENVIRONMENT CONTROL, S.L.","cif":"B72138514","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":1484.42,"estado":"En remesa","fcobro":"","banco":"Sabadell","forma":"Recibo domiciliado"},{"num":"F260025","fecha":"2026-07-06","vto":"2026-07-07","nombre":"LUXINTEC, S.L.","cif":"B47586805","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":1141.86,"estado":"En remesa","fcobro":"","banco":"Sabadell","forma":"Recibo domiciliado"},{"num":"F260026","fecha":"2026-07-06","vto":"2026-07-07","nombre":"LUXIONA IBERIA, S.A.","cif":"A58185588","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":1712.79,"estado":"En remesa","fcobro":"","banco":"Sabadell","forma":"Recibo domiciliado"},{"num":"F260027","fecha":"2026-07-06","vto":"2026-07-07","nombre":"LUZCO, S.L.","cif":"B81822751","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":1484.37,"estado":"En remesa","fcobro":"","banco":"Sabadell","forma":"Recibo domiciliado"},{"num":"F260028","fecha":"2026-07-06","vto":"2026-07-07","nombre":"MARSET ILUMINACION, S.A.","cif":"A08462681","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":1141.86,"estado":"En remesa","fcobro":"","banco":"Sabadell","forma":"Recibo domiciliado"},{"num":"F260029","fecha":"2026-07-06","vto":"2026-07-07","nombre":"NORMAGRUP TECHNOLOGY, S.A.","cif":"A33110909","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":2854.65,"estado":"Cobrada","fcobro":"2026-07-27","banco":"Santander","forma":"Confirming"},{"num":"F260030","fecha":"2026-07-06","vto":"2026-07-07","nombre":"SCHREDER SOCELEC, S.A.","cif":"A28050169","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":2169.38,"estado":"En remesa","fcobro":"","banco":"Sabadell","forma":"Recibo domiciliado"},{"num":"F260031","fecha":"2026-07-06","vto":"2026-07-07","nombre":"SITECO LIGHTING SPAIN, S.L.","cif":"B88280961","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":1141.86,"estado":"Cobrada","fcobro":"2026-07-17","banco":"Santander","forma":"Transferencia"},{"num":"F260032","fecha":"2026-07-06","vto":"2026-07-07","nombre":"THREELINE TECHNOLOGY, S.L.","cif":"B02421519","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":1600.0,"estado":"Cobrada","fcobro":"2026-08-21","banco":"Santander","forma":"Transferencia"},{"num":"F260033","fecha":"2026-07-06","vto":"2026-07-07","nombre":"URBIDERMIS, S.L.","cif":"B66435017","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":1141.86,"estado":"Cobrada","fcobro":"2026-07-31","banco":"Santander","forma":"Transferencia"},{"num":"F260034","fecha":"2026-07-06","vto":"2026-07-07","nombre":"VOSSLOH SCHWABE IBERICA, S.L.","cif":"B58058108","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":2169.54,"estado":"En remesa","fcobro":"","banco":"Sabadell","forma":"Recibo domiciliado"},{"num":"F260035","fecha":"2026-07-06","vto":"2026-07-07","nombre":"ZALUX, S.A.","cif":"A78862315","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":3425.58,"estado":"En remesa","fcobro":"","banco":"Sabadell","forma":"Recibo domiciliado"},{"num":"F260036","fecha":"2026-07-06","vto":"2026-07-07","nombre":"ZG LIGHTING IBERIA, S.L.","cif":"B83070631","concepto":"cuota trimestral asociación","periodo":"3T 2026","total":2169.54,"estado":"Pendiente","fcobro":"","banco":"","forma":""}],"asociados":[{"nombre":"DAISALUX, S.A.","cif":"A01040310","tipo":"Trimestral","cuota":2169.54,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"SIMON LIGHTING, S.A.","cif":"A08002743","tipo":"Trimestral","cuota":0.0,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"SCHNEIDER ELECTRIC ESPAÑA, S.A.","cif":"A08008450","tipo":"Trimestral","cuota":0.0,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"C & G CARANDINI, S.A.","cif":"A08015166","tipo":"Trimestral","cuota":1712.79,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"ERCO ILUMINACION, S.A.","cif":"A08345241","tipo":"Trimestral","cuota":1141.86,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"MARSET ILUMINACION, S.A.","cif":"A08462681","tipo":"Trimestral","cuota":1141.86,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"BJB PROCESA, S.A.","cif":"A08467003","tipo":"Trimestral","cuota":1141.86,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"LEDVANCE Ligthing, S.A. (Unipersonal)","cif":"A28006542","tipo":"Trimestral","cuota":3425.58,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"SCHREDER SOCELEC, S.A.","cif":"A28050169","tipo":"Trimestral","cuota":2169.38,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"FEILO SYLVANIA SPAIN, S.A.U.","cif":"A28075083","tipo":"Trimestral","cuota":2169.54,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"STAFF IBERICA, S.A.","cif":"A28189082","tipo":"Trimestral","cuota":0.0,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"ELECTRO ZEMPER, S.A.","cif":"A28559474","tipo":"Trimestral","cuota":1712.79,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"NORMAGRUP TECHNOLOGY, S.A.","cif":"A33110909","tipo":"Trimestral","cuota":2854.65,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"ARTESOLAR ILUMINACION, S.A.","cif":"A45708617","tipo":"Trimestral","cuota":1141.86,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"ANTARES ILUMINACION, S.A.","cif":"A46648507","tipo":"Trimestral","cuota":3425.58,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"LUXIONA IBERIA, S.A.","cif":"A58185588","tipo":"Trimestral","cuota":1712.79,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"ILUMINACION DISANO, S.A.","cif":"A60157468","tipo":"Trimestral","cuota":2169.54,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"FAEBER LIGHTING SYSTEM, S.A.","cif":"A78228947","tipo":"Trimestral","cuota":570.93,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"ZALUX, S.A.","cif":"A78862315","tipo":"Trimestral","cuota":3425.58,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"GEWIS IBERICA, S.A.","cif":"A80075997","tipo":"Trimestral","cuota":1712.79,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"THREELINE TECHNOLOGY, S.L.","cif":"B02421519","tipo":"Trimestral","cuota":1600.0,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"LEGRAND GROUP ESPAÑA, S.L.","cif":"B08272064","tipo":"Trimestral","cuota":1712.79,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"LUXIONA, S.L.","cif":"B08384851","tipo":"Trimestral","cuota":0.0,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"IREGUA ILUMINACION, S.L.","cif":"B26122341","tipo":"Trimestral","cuota":0.0,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"IMPREX EUROPE,S.L.","cif":"B28115764","tipo":"Trimestral","cuota":761.24,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"ELECTRONICA OLFER, S.L.","cif":"B28380921","tipo":"Trimestral","cuota":2169.54,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"SIGNIFY IBERIA, S.L.ALUMBRADO(LAMPARAS)","cif":"B47002811","tipo":"Trimestral","cuota":0.0,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"LUXINTEC, S.L.","cif":"B47586805","tipo":"Trimestral","cuota":1141.86,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"VOSSLOH SCHWABE IBERICA, S.L.","cif":"B58058108","tipo":"Trimestral","cuota":2169.54,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"C.M. SALVI, S.L","cif":"B58586413","tipo":"Trimestral","cuota":1712.79,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"BENITO URBAN, S.L.U.","cif":"B59987529","tipo":"Trimestral","cuota":1500.0,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"URBIDERMIS, S.L.","cif":"B66435017","tipo":"Trimestral","cuota":1141.86,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"LIGHT ENVIRONMENT CONTROL, S.L.","cif":"B72138514","tipo":"Trimestral","cuota":1484.42,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"ILUMINIA SOLUTIONS, S.L.","cif":"B73782260","tipo":"Trimestral","cuota":1712.79,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"HERMINIO GONZALEZ E HIJOS","cif":"B78595519","tipo":"Trimestral","cuota":1141.86,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"PRILUX LIGHTING S.L.(U)","cif":"B80401136","tipo":"Trimestral","cuota":2169.54,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"ILUMISA, S.L.","cif":"B81407009","tipo":"Trimestral","cuota":0.0,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"LUZCO, S.L.","cif":"B81822751","tipo":"Trimestral","cuota":1484.37,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"ZG LIGHTING IBERIA, S.L.","cif":"B83070631","tipo":"Trimestral","cuota":2169.54,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"HISPANICA DEL LED, S.L.","cif":"B85788651","tipo":"Trimestral","cuota":1484.42,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"SITECO LIGHTING SPAIN, S.L.","cif":"B88280961","tipo":"Trimestral","cuota":1141.86,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"ALBEROLA VERDU, S.L.","cif":"B97130181","tipo":"Trimestral","cuota":1712.7,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"AERLUX ILUMINACION, S.L.","cif":"B99443384","tipo":"Trimestral","cuota":1484.42,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"ASEFACOL","cif":"G78166998","tipo":"Trimestral","cuota":0.0,"trimestres":[1,2,3,4],"nota":"","activo":true},{"nombre":"ASOCIACION FABRICANTES EQUIPOS REDUCTORES - AFEREF","cif":"G86347655","tipo":"Trimestral","cuota":0.0,"trimestres":[1,2,3,4],"nota":"","activo":true}],"devoluciones":[{"fecha":"2026-07-17","nombre":"","numFactura":"","banco":"Sabadell","importe":2055.3,"gastos":13.94,"estado":"Pendiente"}]}</script>
+<script>
+(function(){
+"use strict";
+const D = JSON.parse(document.getElementById('datos').textContent);
+const FAC = D.facturas, ASO = D.asociados, DEV = D.devoluciones;
+const HOY = D.generado;
+
+const fmt = new Intl.NumberFormat('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2});
+const eur = n => fmt.format(Number(n)||0)+' €';
+const r2 = n => Math.round((Number(n)+Number.EPSILON)*100)/100;
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fes = iso => iso && iso.length>=10 ? iso.slice(8,10)+'/'+iso.slice(5,7)+'/'+iso.slice(0,4) : '';
+const trim = iso => iso && iso.length>=7 ? Math.floor((+iso.slice(5,7)-1)/3)+1 : 0;
+const dias = (a,b) => Math.round((new Date(b)-new Date(a))/864e5);
+const suma = xs => r2(xs.reduce((s,x)=>s+(+x.total||0),0));
+const sinTildes = s => String(s??'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+
+const COBRADAS = FAC.filter(f=>f.estado==='Cobrada');
+const EN_REMESA = FAC.filter(f=>f.estado==='En remesa');
+const DEVUELTAS = FAC.filter(f=>f.estado==='Devuelta');
+const PEND = FAC.filter(f=>f.estado==='Pendiente');
+const SIN_COBRAR = FAC.filter(f=>f.estado!=='Cobrada');
+const GASTOS_DEV = r2(DEV.reduce((s,d)=>s+(+d.gastos||0),0));
+
+const PILL = {'Cobrada':['cobr','Cobrada'],'Devuelta':['devu','Devuelta'],
+              'En remesa':['remesa','En remesa'],'Pendiente':['pend','Pendiente']};
+const pill = e => { const [k,t] = PILL[e] || ['pend', e||'Pendiente']; return `<span class="pill ${k}">${esc(t)}</span>`; };
+
+/* por asociado */
+const PORASO = (()=>{
+  const m = new Map();
+  for(const f of FAC){
+    const a = ASO.find(x=>x.cif===f.cif) || {};
+    let r = m.get(f.cif);
+    if(!r){ r = {cif:f.cif, nombre:f.nombre||a.nombre||'', tipo:a.tipo||'Trimestral',
+                 cuota:a.cuota||0, nota:a.nota||'', n:0, emitido:0, cobrado:0, sinCobrar:0};
+            m.set(f.cif, r); }
+    r.n++; r.emitido = r2(r.emitido + f.total);
+    if(f.estado==='Cobrada') r.cobrado = r2(r.cobrado + f.total);
+    else r.sinCobrar = r2(r.sinCobrar + f.total);
+  }
+  return [...m.values()];
+})();
+
+/* por trimestre */
+const PORTRIM = (()=>{
+  const m = {};
+  for(const f of FAC){
+    const k = `${(f.fecha||'').slice(0,4)} · ${trim(f.fecha)}T`;
+    const r = m[k] || (m[k] = {n:0, emitido:0, cobrado:0, sinCobrar:0});
+    r.n++; r.emitido = r2(r.emitido + f.total);
+    if(f.estado==='Cobrada') r.cobrado = r2(r.cobrado + f.total);
+    else r.sinCobrar = r2(r.sinCobrar + f.total);
+  }
+  return Object.entries(m).sort((a,b)=>b[0].localeCompare(a[0]));
+})();
+
+const SECCIONES = [
+  {id:'resumen', nom:'Resumen'},
+  {id:'asociados', nom:'Asociados', n:PORASO.length},
+  {id:'facturas', nom:'Facturas', n:FAC.length},
+  {id:'devoluciones', nom:'Devoluciones', n:DEV.length}
+];
+let vista = 'resumen';
+const F = { aso:{q:'', tipo:'', deuda:''}, fac:{q:'', estado:'', trim:''} };
+const ORD = { aso:{col:'sinCobrar', dir:'desc'}, fac:{col:'num', dir:'desc'} };
+
+function ordenar(arr, col, dir){
+  const s = [...arr].sort((a,b)=>{
+    const x=a[col], y=b[col];
+    if(typeof x==='number' && typeof y==='number') return x-y;
+    return String(x??'').localeCompare(String(y??''),'es',{numeric:true});
+  });
+  return dir==='desc' ? s.reverse() : s;
+}
+const th = (grupo,col,txt,cls) =>
+  `<th class="ord ${cls||''}" data-ord="${grupo}:${col}"${ORD[grupo].col===col?` data-dir="${ORD[grupo].dir}"`:''}>${txt}</th>`;
+
+/* ---------- vistas ---------- */
+function vResumen(){
+  const tot = suma(FAC) || 1;
+  const pc = xs => r2(suma(xs)/tot*100);
+  const deudores = PORASO.filter(r=>r.sinCobrar>0).sort((a,b)=>b.sinCobrar-a.sinCobrar);
+  const retraso = SIN_COBRAR.map(f=>({...f, d:f.vto?dias(f.vto,HOY):0}))
+    .filter(f=>f.d>0).sort((a,b)=>b.d-a.d);
+  return `
+  <dl class="tiles">
+    <div class="tile"><dt>Emitido</dt><dd>${eur(suma(FAC))}<small>${FAC.length} fra.</small></dd></div>
+    <div class="tile bien"><dt>Cobrado</dt><dd>${eur(suma(COBRADAS))}<small>${COBRADAS.length}</small></dd></div>
+    <div class="tile acento"><dt>En remesa</dt><dd>${eur(suma(EN_REMESA))}<small>${EN_REMESA.length}</small></dd></div>
+    <div class="tile aviso"><dt>Pendiente</dt><dd>${eur(suma(PEND))}<small>${PEND.length}</small></dd></div>
+    <div class="tile mal"><dt>Devuelto</dt><dd>${eur(suma(DEVUELTAS)+DEV.filter(d=>!d.numFactura).reduce((s,d)=>s+d.importe,0))}<small>+${eur(GASTOS_DEV)} gastos</small></dd></div>
+  </dl>
+  <div class="barra">
+    <i style="width:${pc(COBRADAS)}%;background:var(--verde)"></i>
+    <i style="width:${pc(EN_REMESA)}%;background:var(--azul)"></i>
+    <i style="width:${pc(PEND)}%;background:var(--ambar)"></i>
+    <i style="width:${pc(DEVUELTAS)}%;background:var(--rojo)"></i>
   </div>
-  <div class="sello"><b>Datos a 22/09/2026</b>36 facturas emitidas</div>
-</header>
+  <div class="leyenda">
+    <span class="l1">Cobrado ${Math.round(pc(COBRADAS))} %</span>
+    <span class="l2">En remesa ${Math.round(pc(EN_REMESA))} %</span>
+    <span class="l3">Pendiente ${Math.round(pc(PEND))} %</span>
+    <span class="l4">Devuelto ${Math.round(pc(DEVUELTAS))} %</span>
+  </div>
+  <div class="dos">
+    <section>
+      <h2>Por trimestre</h2>
+      <div class="caja"><table>
+        <thead><tr><th>Periodo</th><th class="num">Nº</th><th class="num">Emitido</th><th class="num">Cobrado</th><th class="num">Sin cobrar</th></tr></thead>
+        <tbody>${PORTRIM.map(([k,v])=>`<tr><td class="nombre">${esc(k)}</td><td class="num">${v.n}</td>
+          <td class="num mono">${eur(v.emitido)}</td>
+          <td class="num mono" style="color:var(--verde)">${eur(v.cobrado)}</td>
+          <td class="num mono" style="color:${v.sinCobrar?'var(--ambar)':'var(--ink-3)'}">${eur(v.sinCobrar)}</td></tr>`).join('')}</tbody>
+      </table></div>
+    </section>
+    <section>
+      <h2>Quién debe más</h2>
+      <div class="caja"><table>
+        <thead><tr><th>Asociado</th><th class="num">Sin cobrar</th></tr></thead>
+        <tbody>${deudores.length ? deudores.slice(0,10).map(r=>`<tr>
+          <td><button class="btn" style="all:unset;cursor:pointer;color:var(--azul)" data-ir-aso="${esc(r.nombre)}">${esc(r.nombre)}</button></td>
+          <td class="num mono">${eur(r.sinCobrar)}</td></tr>`).join('')
+          : `<tr><td colspan="2" class="vacio">Todo cobrado.</td></tr>`}</tbody>
+      </table></div>
+      ${deudores.length>10?`<p class="dim" style="margin:6px 2px">y ${deudores.length-10} más en la pestaña Asociados.</p>`:''}
+    </section>
+  </div>
+  <h2>Vencidas sin cobrar</h2>
+  <div class="caja"><table>
+    <thead><tr><th>Nº</th><th>Asociado</th><th>Vencimiento</th><th class="num">Importe</th><th>Estado</th><th class="num">Días</th></tr></thead>
+    <tbody>${retraso.length ? retraso.slice(0,15).map(f=>`<tr>
+      <td class="mono">${esc(f.num)}</td><td>${esc(f.nombre)}</td>
+      <td class="mono dim">${fes(f.vto)}</td><td class="num mono">${eur(f.total)}</td>
+      <td>${pill(f.estado)}</td>
+      <td class="num" style="color:${f.d>60?'var(--rojo)':'var(--ambar)'}">${f.d}</td></tr>`).join('')
+      : `<tr><td colspan="6" class="vacio">Nada vencido.</td></tr>`}</tbody>
+  </table></div>
+  ${retraso.length>15?`<p class="dim" style="margin:6px 2px">y ${retraso.length-15} más en la pestaña Facturas.</p>`:''}`;
+}
 
-<dl class="tiles">
-  <div class="tile"><dt>Emitido</dt><dd>63.694,46 €<small>36 fra.</small></dd></div>
-  <div class="tile bien"><dt>Cobrado</dt><dd>13.779,84 €<small>8</small></dd></div>
-  <div class="tile acento"><dt>En remesa</dt><dd>47.174,15 €<small>26</small></dd></div>
-  <div class="tile aviso"><dt>Pendiente</dt><dd>2.740,47 €<small>2</small></dd></div>
-  <div class="tile mal"><dt>Devuelto</dt><dd>2.055,30 €<small>+13,94 € gastos</small></dd></div>
-</dl>
+function vAsociados(){
+  let l = PORASO;
+  if(F.aso.tipo) l = l.filter(r=>r.tipo===F.aso.tipo);
+  if(F.aso.deuda==='si') l = l.filter(r=>r.sinCobrar>0);
+  if(F.aso.deuda==='no') l = l.filter(r=>r.sinCobrar===0);
+  if(F.aso.q){ const q=sinTildes(F.aso.q); l = l.filter(r=>sinTildes(r.nombre).includes(q)||sinTildes(r.cif).includes(q)); }
+  l = ordenar(l, ORD.aso.col, ORD.aso.dir);
+  return `
+  <div class="filtros">
+    <input type="search" id="q-aso" placeholder="Buscar asociado o CIF" value="${esc(F.aso.q)}" aria-label="Buscar asociado">
+    <select id="tipo-aso" aria-label="Tipo de cuota">
+      <option value="">Trimestrales y anuales</option>
+      <option value="Trimestral"${F.aso.tipo==='Trimestral'?' selected':''}>Solo cuota trimestral</option>
+      <option value="Anual"${F.aso.tipo==='Anual'?' selected':''}>Solo cuota anual</option>
+    </select>
+    <select id="deuda-aso" aria-label="Situación de cobro">
+      <option value="">Todos</option>
+      <option value="si"${F.aso.deuda==='si'?' selected':''}>Con importe sin cobrar</option>
+      <option value="no"${F.aso.deuda==='no'?' selected':''}>Todo cobrado</option>
+    </select>
+    <span class="dim">${l.length} de ${PORASO.length}</span>
+    <button class="btn" data-csv="aso" id="csv-aso">Descargar CSV</button>
+  </div>
+  <div class="caja"><table>
+    <thead><tr>${th('aso','nombre','Asociado')}${th('aso','tipo','Tipo de cuota')}
+      ${th('aso','cuota','Cuota','num')}${th('aso','emitido','Emitido','num')}
+      ${th('aso','cobrado','Cobrado','num')}${th('aso','sinCobrar','Sin cobrar','num')}</tr></thead>
+    <tbody>${l.length ? l.map(r=>`<tr>
+      <td><span class="nombre">${esc(r.nombre)}</span>${r.nota?`<div class="dim">${esc(r.nota)}</div>`:''}</td>
+      <td><span class="pill gris">${esc(r.tipo)}</span></td>
+      <td class="num mono">${r.cuota?eur(r.cuota):'—'}</td>
+      <td class="num mono">${eur(r.emitido)}</td>
+      <td class="num mono" style="color:${r.cobrado?'var(--verde)':'var(--ink-3)'}">${r.cobrado?eur(r.cobrado):'—'}</td>
+      <td class="num mono" style="color:${r.sinCobrar?'var(--ambar)':'var(--ink-3)'}">${r.sinCobrar?eur(r.sinCobrar):'—'}</td></tr>`).join('')
+      : `<tr><td colspan="6" class="vacio">Ningún asociado encaja con el filtro.</td></tr>`}</tbody>
+    ${l.length?`<tfoot><tr><td colspan="3">Total · ${l.length} asociados</td>
+      <td class="num mono">${eur(l.reduce((s,r)=>s+r.emitido,0))}</td>
+      <td class="num mono">${eur(l.reduce((s,r)=>s+r.cobrado,0))}</td>
+      <td class="num mono">${eur(l.reduce((s,r)=>s+r.sinCobrar,0))}</td></tr></tfoot>`:''}
+  </table></div>`;
+}
 
-<div class="barra">
-  <i style="width:21.63%;background:var(--verde)"></i>
-  <i style="width:74.06%;background:var(--azul)"></i>
-  <i style="width:4.3%;background:var(--ambar)"></i>
-  <i style="width:0.0%;background:var(--rojo)"></i>
-</div>
-<div class="leyenda">
-  <span class="l1">Cobrado 22 %</span>
-  <span class="l2">En remesa 74 %</span>
-  <span class="l3">Pendiente 4 %</span>
-  <span class="l4">Devuelto 0 %</span>
-</div>
+function vFacturas(){
+  let l = FAC;
+  if(F.fac.estado) l = l.filter(f=>f.estado===F.fac.estado);
+  if(F.fac.trim) l = l.filter(f=>`${(f.fecha||'').slice(0,4)}-${trim(f.fecha)}`===F.fac.trim);
+  if(F.fac.q){ const q=sinTildes(F.fac.q);
+    l = l.filter(f=>[f.num,f.nombre,f.cif].some(v=>sinTildes(v).includes(q))); }
+  l = ordenar(l, ORD.fac.col, ORD.fac.dir);
+  const periodos = [...new Set(FAC.map(f=>`${(f.fecha||'').slice(0,4)}-${trim(f.fecha)}`))].sort().reverse();
+  return `
+  <div class="filtros">
+    <input type="search" id="q-fac" placeholder="Buscar número, asociado o CIF" value="${esc(F.fac.q)}" aria-label="Buscar factura">
+    <select id="estado-fac" aria-label="Estado">
+      <option value="">Todos los estados</option>
+      ${['Pendiente','En remesa','Cobrada','Devuelta'].map(e=>`<option value="${e}"${F.fac.estado===e?' selected':''}>${e}</option>`).join('')}
+    </select>
+    <select id="trim-fac" aria-label="Periodo">
+      <option value="">Todos los periodos</option>
+      ${periodos.map(p=>`<option value="${p}"${F.fac.trim===p?' selected':''}>${p.split('-')[0]} · ${p.split('-')[1]}T</option>`).join('')}
+    </select>
+    <span class="dim">${l.length} de ${FAC.length}</span>
+    <button class="btn" data-csv="fac" id="csv-fac">Descargar CSV</button>
+  </div>
+  <div class="caja"><table>
+    <thead><tr>${th('fac','num','Nº')}${th('fac','fecha','Fecha')}${th('fac','vto','Vto.')}
+      ${th('fac','nombre','Asociado')}<th>Concepto</th>${th('fac','total','Importe','num')}
+      ${th('fac','estado','Estado')}<th>Cobro</th></tr></thead>
+    <tbody>${l.length ? l.map(f=>{
+      const d = f.vto && f.estado!=='Cobrada' ? dias(f.vto,HOY) : 0;
+      return `<tr>
+        <td class="mono nombre">${esc(f.num)}</td>
+        <td class="mono dim">${fes(f.fecha)}</td>
+        <td class="mono dim">${fes(f.vto)}${d>0?`<div style="color:${d>60?'var(--rojo)':'var(--ambar)'};font-size:11.5px">${d} días</div>`:''}</td>
+        <td>${esc(f.nombre)}</td>
+        <td class="dim">${esc(f.concepto)}${f.periodo?`<div class="dim">${esc(f.periodo)}</div>`:''}</td>
+        <td class="num mono nombre">${eur(f.total)}</td>
+        <td>${pill(f.estado)}</td>
+        <td class="dim mono">${f.fcobro?fes(f.fcobro):''}${f.banco?`<div class="dim">${esc(f.banco)}</div>`:''}</td></tr>`;}).join('')
+      : `<tr><td colspan="8" class="vacio">Ninguna factura encaja con el filtro.</td></tr>`}</tbody>
+    ${l.length?`<tfoot><tr><td colspan="5">Total · ${l.length} facturas</td>
+      <td class="num mono">${eur(suma(l))}</td><td colspan="2"></td></tr></tfoot>`:''}
+  </table></div>`;
+}
 
-<h2>Por trimestre</h2>
-<div class="caja"><table>
-<thead><tr><th>Periodo</th><th class="num">Facturas</th><th class="num">Emitido</th><th class="num">Cobrado</th><th class="num">Sin cobrar</th></tr></thead>
-<tbody><tr><td class="nombre">2026 · 3T</td><td class="num">36</td><td class="num mono">63.694,46 €</td><td class="num mono" style="color:var(--verde)">13.779,84 €</td><td class="num mono" style="color:var(--ambar)">49.914,62 €</td></tr></tbody></table></div>
-<h2>Situación por asociado</h2>
-<div class="caja"><table>
-<thead><tr><th>Asociado</th><th>Tipo de cuota</th><th class="num">Cuota</th><th class="num">Emitido</th><th class="num">Cobrado</th><th class="num">Sin cobrar</th></tr></thead>
-<tbody><tr><td class="nombre">ANTARES ILUMINACION, S.A.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">3.425,58 €</td><td class="num mono">3.425,58 €</td><td class="num mono" style="color:var(--verde)">—</td><td class="num mono" style="color:var(--ambar)">3.425,58 €</td></tr><tr><td class="nombre">ZALUX, S.A.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">3.425,58 €</td><td class="num mono">3.425,58 €</td><td class="num mono" style="color:var(--verde)">—</td><td class="num mono" style="color:var(--ambar)">3.425,58 €</td></tr><tr><td class="nombre">DAISALUX, S.A.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">2.169,54 €</td><td class="num mono">2.169,54 €</td><td class="num mono" style="color:var(--verde)">—</td><td class="num mono" style="color:var(--ambar)">2.169,54 €</td></tr><tr><td class="nombre">ELECTRONICA OLFER, S.L.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">2.169,54 €</td><td class="num mono">2.169,54 €</td><td class="num mono" style="color:var(--verde)">—</td><td class="num mono" style="color:var(--ambar)">2.169,54 €</td></tr><tr><td class="nombre">FEILO SYLVANIA SPAIN, S.A.U.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">2.169,54 €</td><td class="num mono">2.169,54 €</td><td class="num mono" style="color:var(--verde)">—</td><td class="num mono" style="color:var(--ambar)">2.169,54 €</td></tr><tr><td class="nombre">ILUMINACION DISANO, S.A.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">2.169,54 €</td><td class="num mono">2.169,54 €</td><td class="num mono" style="color:var(--verde)">—</td><td class="num mono" style="color:var(--ambar)">2.169,54 €</td></tr><tr><td class="nombre">PRILUX LIGHTING S.L.(U)</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">2.169,54 €</td><td class="num mono">2.169,54 €</td><td class="num mono" style="color:var(--verde)">—</td><td class="num mono" style="color:var(--ambar)">2.169,54 €</td></tr><tr><td class="nombre">VOSSLOH SCHWABE IBERICA, S.L.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">2.169,54 €</td><td class="num mono">2.169,54 €</td><td class="num mono" style="color:var(--verde)">—</td><td class="num mono" style="color:var(--ambar)">2.169,54 €</td></tr><tr><td class="nombre">ZG LIGHTING IBERIA, S.L.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">2.169,54 €</td><td class="num mono">2.169,54 €</td><td class="num mono" style="color:var(--verde)">—</td><td class="num mono" style="color:var(--ambar)">2.169,54 €</td></tr><tr><td class="nombre">SCHREDER SOCELEC, S.A.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">2.169,38 €</td><td class="num mono">2.169,38 €</td><td class="num mono" style="color:var(--verde)">—</td><td class="num mono" style="color:var(--ambar)">2.169,38 €</td></tr><tr><td class="nombre">C &amp; G CARANDINI, S.A.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">1.712,79 €</td><td class="num mono">1.712,79 €</td><td class="num mono" style="color:var(--verde)">—</td><td class="num mono" style="color:var(--ambar)">1.712,79 €</td></tr><tr><td class="nombre">C.M. SALVI, S.L</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">1.712,79 €</td><td class="num mono">1.712,79 €</td><td class="num mono" style="color:var(--verde)">—</td><td class="num mono" style="color:var(--ambar)">1.712,79 €</td></tr><tr><td class="nombre">ELECTRO ZEMPER, S.A.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">1.712,79 €</td><td class="num mono">1.712,79 €</td><td class="num mono" style="color:var(--verde)">—</td><td class="num mono" style="color:var(--ambar)">1.712,79 €</td></tr><tr><td class="nombre">ILUMINIA SOLUTIONS, S.L.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">1.712,79 €</td><td class="num mono">1.712,79 €</td><td class="num mono" style="color:var(--verde)">—</td><td class="num mono" style="color:var(--ambar)">1.712,79 €</td></tr><tr><td class="nombre">LEGRAND GROUP ESPAÑA, S.L.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">1.712,79 €</td><td class="num mono">1.712,79 €</td><td class="num mono" style="color:var(--verde)">—</td><td class="num mono" style="color:var(--ambar)">1.712,79 €</td></tr><tr><td class="nombre">LUXIONA IBERIA, S.A.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">1.712,79 €</td><td class="num mono">1.712,79 €</td><td class="num mono" style="color:var(--verde)">—</td><td class="num mono" style="color:var(--ambar)">1.712,79 €</td></tr><tr><td class="nombre">ALBEROLA VERDU, S.L.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">1.712,70 €</td><td class="num mono">1.712,70 €</td><td class="num mono" style="color:var(--verde)">—</td><td class="num mono" style="color:var(--ambar)">1.712,70 €</td></tr><tr><td class="nombre">BENITO URBAN, S.L.U.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">1.500,00 €</td><td class="num mono">1.500,00 €</td><td class="num mono" style="color:var(--verde)">—</td><td class="num mono" style="color:var(--ambar)">1.500,00 €</td></tr><tr><td class="nombre">AERLUX ILUMINACION, S.L.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">1.484,42 €</td><td class="num mono">1.484,42 €</td><td class="num mono" style="color:var(--verde)">—</td><td class="num mono" style="color:var(--ambar)">1.484,42 €</td></tr><tr><td class="nombre">HISPANICA DEL LED, S.L.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">1.484,42 €</td><td class="num mono">1.484,42 €</td><td class="num mono" style="color:var(--verde)">—</td><td class="num mono" style="color:var(--ambar)">1.484,42 €</td></tr><tr><td class="nombre">LIGHT ENVIRONMENT CONTROL, S.L.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">1.484,42 €</td><td class="num mono">1.484,42 €</td><td class="num mono" style="color:var(--verde)">—</td><td class="num mono" style="color:var(--ambar)">1.484,42 €</td></tr><tr><td class="nombre">LUZCO, S.L.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">1.484,37 €</td><td class="num mono">1.484,37 €</td><td class="num mono" style="color:var(--verde)">—</td><td class="num mono" style="color:var(--ambar)">1.484,37 €</td></tr><tr><td class="nombre">ARTESOLAR ILUMINACION, S.A.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">1.141,86 €</td><td class="num mono">1.141,86 €</td><td class="num mono" style="color:var(--verde)">—</td><td class="num mono" style="color:var(--ambar)">1.141,86 €</td></tr><tr><td class="nombre">BJB PROCESA, S.A.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">1.141,86 €</td><td class="num mono">1.141,86 €</td><td class="num mono" style="color:var(--verde)">—</td><td class="num mono" style="color:var(--ambar)">1.141,86 €</td></tr><tr><td class="nombre">ERCO ILUMINACION, S.A.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">1.141,86 €</td><td class="num mono">1.141,86 €</td><td class="num mono" style="color:var(--verde)">—</td><td class="num mono" style="color:var(--ambar)">1.141,86 €</td></tr><tr><td class="nombre">LUXINTEC, S.L.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">1.141,86 €</td><td class="num mono">1.141,86 €</td><td class="num mono" style="color:var(--verde)">—</td><td class="num mono" style="color:var(--ambar)">1.141,86 €</td></tr><tr><td class="nombre">MARSET ILUMINACION, S.A.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">1.141,86 €</td><td class="num mono">1.141,86 €</td><td class="num mono" style="color:var(--verde)">—</td><td class="num mono" style="color:var(--ambar)">1.141,86 €</td></tr><tr><td class="nombre">FAEBER LIGHTING SYSTEM, S.A.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">570,93 €</td><td class="num mono">570,93 €</td><td class="num mono" style="color:var(--verde)">—</td><td class="num mono" style="color:var(--ambar)">570,93 €</td></tr><tr><td class="nombre">GEWIS IBERICA, S.A.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">1.712,79 €</td><td class="num mono">1.712,79 €</td><td class="num mono" style="color:var(--verde)">1.712,79 €</td><td class="num mono" style="color:var(--ink-3)">—</td></tr><tr><td class="nombre">HERMINIO GONZALEZ E HIJOS</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">1.141,86 €</td><td class="num mono">1.141,86 €</td><td class="num mono" style="color:var(--verde)">1.141,86 €</td><td class="num mono" style="color:var(--ink-3)">—</td></tr><tr><td class="nombre">IMPREX EUROPE,S.L.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">761,24 €</td><td class="num mono">761,24 €</td><td class="num mono" style="color:var(--verde)">761,24 €</td><td class="num mono" style="color:var(--ink-3)">—</td></tr><tr><td class="nombre">LEDVANCE Ligthing, S.A. (Unipersonal)</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">3.425,58 €</td><td class="num mono">3.425,58 €</td><td class="num mono" style="color:var(--verde)">3.425,58 €</td><td class="num mono" style="color:var(--ink-3)">—</td></tr><tr><td class="nombre">NORMAGRUP TECHNOLOGY, S.A.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">2.854,65 €</td><td class="num mono">2.854,65 €</td><td class="num mono" style="color:var(--verde)">2.854,65 €</td><td class="num mono" style="color:var(--ink-3)">—</td></tr><tr><td class="nombre">SITECO LIGHTING SPAIN, S.L.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">1.141,86 €</td><td class="num mono">1.141,86 €</td><td class="num mono" style="color:var(--verde)">1.141,86 €</td><td class="num mono" style="color:var(--ink-3)">—</td></tr><tr><td class="nombre">THREELINE TECHNOLOGY, S.L.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">1.600,00 €</td><td class="num mono">1.600,00 €</td><td class="num mono" style="color:var(--verde)">1.600,00 €</td><td class="num mono" style="color:var(--ink-3)">—</td></tr><tr><td class="nombre">URBIDERMIS, S.L.</td><td><span class="pill gris">Trimestral</span></td><td class="num mono">1.141,86 €</td><td class="num mono">1.141,86 €</td><td class="num mono" style="color:var(--verde)">1.141,86 €</td><td class="num mono" style="color:var(--ink-3)">—</td></tr></tbody><tfoot><tr><td colspan="3">Total · 36 asociados</td><td class="num mono">63.694,46 €</td><td class="num mono">13.779,84 €</td><td class="num mono">49.914,62 €</td></tr></tfoot></table></div>
-<h2>Facturas sin cobrar</h2>
-<div class="caja"><table>
-<thead><tr><th>Nº</th><th>Asociado</th><th>Vencimiento</th><th class="num">Importe</th><th>Estado</th><th class="num">Días</th></tr></thead>
-<tbody><tr><td class="mono">F260013</td><td>FAEBER LIGHTING SYSTEM, S.A.</td><td class="mono dim">07/07/2026</td><td class="num mono">570,93 €</td><td><span class="pill pend">Pendiente</span></td><td class="num" style="color:var(--rojo)">77</td></tr><tr><td class="mono">F260036</td><td>ZG LIGHTING IBERIA, S.L.</td><td class="mono dim">07/07/2026</td><td class="num mono">2.169,54 €</td><td><span class="pill pend">Pendiente</span></td><td class="num" style="color:var(--rojo)">77</td></tr><tr><td class="mono">F260001</td><td>AERLUX ILUMINACION, S.L.</td><td class="mono dim">07/07/2026</td><td class="num mono">1.484,42 €</td><td><span class="pill remesa">En remesa</span></td><td class="num" style="color:var(--rojo)">77</td></tr><tr><td class="mono">F260002</td><td>ALBEROLA VERDU, S.L.</td><td class="mono dim">07/07/2026</td><td class="num mono">1.712,70 €</td><td><span class="pill remesa">En remesa</span></td><td class="num" style="color:var(--rojo)">77</td></tr><tr><td class="mono">F260003</td><td>ANTARES ILUMINACION, S.A.</td><td class="mono dim">07/07/2026</td><td class="num mono">3.425,58 €</td><td><span class="pill remesa">En remesa</span></td><td class="num" style="color:var(--rojo)">77</td></tr><tr><td class="mono">F260004</td><td>ARTESOLAR ILUMINACION, S.A.</td><td class="mono dim">07/07/2026</td><td class="num mono">1.141,86 €</td><td><span class="pill remesa">En remesa</span></td><td class="num" style="color:var(--rojo)">77</td></tr><tr><td class="mono">F260005</td><td>BJB PROCESA, S.A.</td><td class="mono dim">07/07/2026</td><td class="num mono">1.141,86 €</td><td><span class="pill remesa">En remesa</span></td><td class="num" style="color:var(--rojo)">77</td></tr><tr><td class="mono">F260006</td><td>BENITO URBAN, S.L.U.</td><td class="mono dim">07/07/2026</td><td class="num mono">1.500,00 €</td><td><span class="pill remesa">En remesa</span></td><td class="num" style="color:var(--rojo)">77</td></tr><tr><td class="mono">F260007</td><td>C &amp; G CARANDINI, S.A.</td><td class="mono dim">07/07/2026</td><td class="num mono">1.712,79 €</td><td><span class="pill remesa">En remesa</span></td><td class="num" style="color:var(--rojo)">77</td></tr><tr><td class="mono">F260008</td><td>C.M. SALVI, S.L</td><td class="mono dim">07/07/2026</td><td class="num mono">1.712,79 €</td><td><span class="pill remesa">En remesa</span></td><td class="num" style="color:var(--rojo)">77</td></tr><tr><td class="mono">F260009</td><td>DAISALUX, S.A.</td><td class="mono dim">07/07/2026</td><td class="num mono">2.169,54 €</td><td><span class="pill remesa">En remesa</span></td><td class="num" style="color:var(--rojo)">77</td></tr><tr><td class="mono">F260010</td><td>ELECTRO ZEMPER, S.A.</td><td class="mono dim">07/07/2026</td><td class="num mono">1.712,79 €</td><td><span class="pill remesa">En remesa</span></td><td class="num" style="color:var(--rojo)">77</td></tr><tr><td class="mono">F260011</td><td>ELECTRONICA OLFER, S.L.</td><td class="mono dim">07/07/2026</td><td class="num mono">2.169,54 €</td><td><span class="pill remesa">En remesa</span></td><td class="num" style="color:var(--rojo)">77</td></tr><tr><td class="mono">F260012</td><td>ERCO ILUMINACION, S.A.</td><td class="mono dim">07/07/2026</td><td class="num mono">1.141,86 €</td><td><span class="pill remesa">En remesa</span></td><td class="num" style="color:var(--rojo)">77</td></tr><tr><td class="mono">F260015</td><td>PRILUX LIGHTING S.L.(U)</td><td class="mono dim">07/07/2026</td><td class="num mono">2.169,54 €</td><td><span class="pill remesa">En remesa</span></td><td class="num" style="color:var(--rojo)">77</td></tr><tr><td class="mono">F260016</td><td>FEILO SYLVANIA SPAIN, S.A.U.</td><td class="mono dim">07/07/2026</td><td class="num mono">2.169,54 €</td><td><span class="pill remesa">En remesa</span></td><td class="num" style="color:var(--rojo)">77</td></tr><tr><td class="mono">F260018</td><td>HISPANICA DEL LED, S.L.</td><td class="mono dim">07/07/2026</td><td class="num mono">1.484,42 €</td><td><span class="pill remesa">En remesa</span></td><td class="num" style="color:var(--rojo)">77</td></tr><tr><td class="mono">F260019</td><td>ILUMINACION DISANO, S.A.</td><td class="mono dim">07/07/2026</td><td class="num mono">2.169,54 €</td><td><span class="pill remesa">En remesa</span></td><td class="num" style="color:var(--rojo)">77</td></tr><tr><td class="mono">F260020</td><td>ILUMINIA SOLUTIONS, S.L.</td><td class="mono dim">07/07/2026</td><td class="num mono">1.712,79 €</td><td><span class="pill remesa">En remesa</span></td><td class="num" style="color:var(--rojo)">77</td></tr><tr><td class="mono">F260023</td><td>LEGRAND GROUP ESPAÑA, S.L.</td><td class="mono dim">07/07/2026</td><td class="num mono">1.712,79 €</td><td><span class="pill remesa">En remesa</span></td><td class="num" style="color:var(--rojo)">77</td></tr><tr><td class="mono">F260024</td><td>LIGHT ENVIRONMENT CONTROL, S.L.</td><td class="mono dim">07/07/2026</td><td class="num mono">1.484,42 €</td><td><span class="pill remesa">En remesa</span></td><td class="num" style="color:var(--rojo)">77</td></tr><tr><td class="mono">F260025</td><td>LUXINTEC, S.L.</td><td class="mono dim">07/07/2026</td><td class="num mono">1.141,86 €</td><td><span class="pill remesa">En remesa</span></td><td class="num" style="color:var(--rojo)">77</td></tr><tr><td class="mono">F260026</td><td>LUXIONA IBERIA, S.A.</td><td class="mono dim">07/07/2026</td><td class="num mono">1.712,79 €</td><td><span class="pill remesa">En remesa</span></td><td class="num" style="color:var(--rojo)">77</td></tr><tr><td class="mono">F260027</td><td>LUZCO, S.L.</td><td class="mono dim">07/07/2026</td><td class="num mono">1.484,37 €</td><td><span class="pill remesa">En remesa</span></td><td class="num" style="color:var(--rojo)">77</td></tr><tr><td class="mono">F260028</td><td>MARSET ILUMINACION, S.A.</td><td class="mono dim">07/07/2026</td><td class="num mono">1.141,86 €</td><td><span class="pill remesa">En remesa</span></td><td class="num" style="color:var(--rojo)">77</td></tr><tr><td class="mono">F260030</td><td>SCHREDER SOCELEC, S.A.</td><td class="mono dim">07/07/2026</td><td class="num mono">2.169,38 €</td><td><span class="pill remesa">En remesa</span></td><td class="num" style="color:var(--rojo)">77</td></tr><tr><td class="mono">F260034</td><td>VOSSLOH SCHWABE IBERICA, S.L.</td><td class="mono dim">07/07/2026</td><td class="num mono">2.169,54 €</td><td><span class="pill remesa">En remesa</span></td><td class="num" style="color:var(--rojo)">77</td></tr><tr><td class="mono">F260035</td><td>ZALUX, S.A.</td><td class="mono dim">07/07/2026</td><td class="num mono">3.425,58 €</td><td><span class="pill remesa">En remesa</span></td><td class="num" style="color:var(--rojo)">77</td></tr></tbody><tfoot><tr><td colspan="3">Total sin cobrar</td><td class="num mono">49.914,62 €</td><td colspan="2"></td></tr></tfoot></table></div>
-<h2>Recibos devueltos</h2>
-<div class="caja"><table>
-<thead><tr><th>Fecha</th><th>Deudor</th><th>Banco</th><th class="num">Recibo</th><th class="num">Gastos</th><th>Estado</th></tr></thead>
-<tbody><tr><td class="mono">17/07/2026</td><td>Sin identificar</td><td>Sabadell</td><td class="num mono">2.055,30 €</td><td class="num mono">13,94 €</td><td><span class="pill devu">Pendiente</span></td></tr></tbody></table></div>
-<p class="nota"><b>De dónde salen estos datos.</b> De la herramienta de facturación que lleva la asesoría,
-actualizada a 22/09/2026. «Cobrado» son los cobros confirmados contra los extractos bancarios.
-«En remesa» son recibos domiciliados que se enviaron al banco y cuyo cargo todavía no se ha confirmado
-contra el extracto, así que no cuentan como cobrados. Esta página es solo de consulta y no incluye
-cuentas bancarias ni datos de domiciliación.</p>
-</div>
+function vDevoluciones(){
+  const l = [...DEV].sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+  return `
+  <div class="caja"><table>
+    <thead><tr><th>Fecha</th><th>Deudor</th><th>Factura</th><th>Banco</th>
+      <th class="num">Recibo</th><th class="num">Gastos</th><th class="num">Total</th><th>Estado</th></tr></thead>
+    <tbody>${l.length ? l.map(d=>`<tr>
+      <td class="mono">${fes(d.fecha)}</td>
+      <td class="nombre">${esc(d.nombre||'Sin identificar')}</td>
+      <td class="mono dim">${esc(d.numFactura||'—')}</td>
+      <td>${esc(d.banco)}</td>
+      <td class="num mono">${eur(d.importe)}</td>
+      <td class="num mono">${eur(d.gastos)}</td>
+      <td class="num mono nombre">${eur(d.importe+d.gastos)}</td>
+      <td>${pill(d.estado==='Recuperada'?'Cobrada':'Devuelta')}</td></tr>`).join('')
+      : `<tr><td colspan="8" class="vacio">Ningún recibo devuelto.</td></tr>`}</tbody>
+    ${l.length?`<tfoot><tr><td colspan="6">Total devuelto con gastos</td>
+      <td class="num mono">${eur(l.reduce((s,d)=>s+d.importe+d.gastos,0))}</td><td></td></tr></tfoot>`:''}
+  </table></div>`;
+}
+
+/* ---------- pintado ---------- */
+function pintar(){
+  document.getElementById('sello').innerHTML =
+    `<b>Datos a ${fes(HOY)}</b>${FAC.length} facturas · ${eur(suma(SIN_COBRAR))} sin cobrar`;
+  document.getElementById('pest').innerHTML = SECCIONES.map(s=>
+    `<button type="button" role="tab" data-ir="${s.id}" aria-selected="${s.id===vista}">${s.nom}`+
+    (s.n!==undefined?`<span class="cuenta">${s.n}</span>`:'')+`</button>`).join('');
+  document.getElementById('vista').innerHTML =
+    ({resumen:vResumen, asociados:vAsociados, facturas:vFacturas, devoluciones:vDevoluciones})[vista]();
+  document.getElementById('nota').innerHTML =
+    `<b>De dónde salen estos datos.</b> De la herramienta de facturación que lleva la asesoría, `+
+    `con los datos a ${fes(HOY)}. «Cobrado» son los cobros confirmados contra los extractos bancarios. `+
+    `«En remesa» son recibos domiciliados enviados al banco cuyo cargo todavía no se ha confirmado contra `+
+    `el extracto, así que no cuentan como cobrados. Esta página es solo de consulta y no incluye cuentas `+
+    `bancarias ni datos de domiciliación.`;
+}
+
+async function csv(cab, filas, nombre){
+  const q = v => '"'+String(v??'').replace(/"/g,'""')+'"';
+  const txt = '﻿'+[cab,...filas].map(f=>f.map(q).join(';')).join('\r\n');
+  if(window.claude && window.claude.use){
+    let d = null;
+    try{ d = await window.claude.use('downloads'); }catch(e){ d = null; }
+    if(d){ try{ await d.save({filename:nombre, data:txt}); }catch(e){} return; }
+  }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([txt],{type:'text/csv;charset=utf-8'}));
+  a.download = nombre; document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+
+document.addEventListener('click', ev => {
+  const t = ev.target.closest('[data-ir],[data-ord],[data-csv],[data-ir-aso]');
+  if(!t) return;
+  if(t.dataset.ir){ vista = t.dataset.ir; pintar(); window.scrollTo({top:0,behavior:'smooth'}); return; }
+  if(t.dataset.irAso){ vista='asociados'; F.aso.q = t.dataset.irAso; pintar(); return; }
+  if(t.dataset.ord){
+    const [g,c] = t.dataset.ord.split(':');
+    if(ORD[g].col===c) ORD[g].dir = ORD[g].dir==='asc' ? 'desc' : 'asc';
+    else { ORD[g].col = c; ORD[g].dir = (c==='nombre'||c==='num'||c==='tipo'||c==='estado') ? 'asc' : 'desc'; }
+    pintar(); return;
+  }
+  if(t.dataset.csv==='aso'){
+    csv(['ASOCIADO','CIF','TIPO DE CUOTA','CUOTA','FACTURAS','EMITIDO','COBRADO','SIN COBRAR'],
+      ordenar(PORASO,ORD.aso.col,ORD.aso.dir).map(r=>[r.nombre,r.cif,r.tipo,
+        fmt.format(r.cuota),r.n,fmt.format(r.emitido),fmt.format(r.cobrado),fmt.format(r.sinCobrar)]),
+      'Cobros ANFALUM por asociado.csv');
+  }
+  if(t.dataset.csv==='fac'){
+    csv(['Nº FRA.','F. FRA.','F. VTO.','ASOCIADO','CIF','CONCEPTO','PERIODO','IMPORTE','ESTADO','F. COBRO','BANCO'],
+      ordenar(FAC,ORD.fac.col,ORD.fac.dir).map(f=>[f.num,fes(f.fecha),fes(f.vto),f.nombre,f.cif,
+        f.concepto,f.periodo,fmt.format(f.total),f.estado,fes(f.fcobro),f.banco]),
+      'Cobros ANFALUM facturas.csv');
+  }
+});
+
+document.addEventListener('input', ev => {
+  const id = ev.target.id;
+  if(id!=='q-aso' && id!=='q-fac') return;
+  const pos = ev.target.selectionStart;
+  if(id==='q-aso') F.aso.q = ev.target.value; else F.fac.q = ev.target.value;
+  pintar();
+  const n = document.getElementById(id);
+  if(n){ n.focus(); try{ n.setSelectionRange(pos,pos); }catch(e){} }
+});
+document.addEventListener('change', ev => {
+  const id = ev.target.id, v = ev.target.value;
+  if(id==='tipo-aso') F.aso.tipo = v;
+  else if(id==='deuda-aso') F.aso.deuda = v;
+  else if(id==='estado-fac') F.fac.estado = v;
+  else if(id==='trim-fac') F.fac.trim = v;
+  else return;
+  pintar();
+});
+
+pintar();
+})();
+</script>
 
 </body>
 </html>
