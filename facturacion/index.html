@@ -390,7 +390,11 @@ const CONFIG_INICIAL = {...CONFIG_BASE, ...SEMILLAS.ANFALUM};
 
 let ENT = ENT_BASE;
 const entDe = x => (x && x.ent) || ENT_BASE;
-const clave = s => ENT===ENT_BASE ? String(s) : ENT+SEP+String(s);
+/* El identificador de un documento solo admite letras, dígitos y _ - . ~ : @ +
+   Series como «2026/0001» llevan barra: el número de la factura la conserva y
+   el identificador la cambia por un guion. */
+const idLimpio = s => String(s).replace(/[^A-Za-z0-9_.~:@+-]/g, '-');
+const clave = s => idLimpio(ENT===ENT_BASE ? String(s) : ENT+SEP+String(s));
 const rutaConfig = e => e===ENT_BASE ? 'config/empresa' : 'config/'+e;
 const idAEnt = id => id==='empresa' ? ENT_BASE : id;
 
