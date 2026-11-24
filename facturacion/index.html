@@ -1,0 +1,2133 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Facturación ANFALUM y ASEFACOL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+:root{
+  --ink:#131c26; --ink-2:#3d4a58; --ink-3:#6b7887;
+  --azul:#27578f; --azul-alto:#1c4271; --azul-suave:#eaf0f7;
+  --ambar:#e9a12c; --ambar-suave:#fdf4e2;
+  --verde:#1f7a4d; --verde-suave:#e7f3ec;
+  --rojo:#b03028; --rojo-suave:#fbecea;
+  --papel:#f4f6f8; --superficie:#ffffff; --superficie-2:#fafbfc;
+  --linea:#d3dae2; --linea-suave:#e6eaef;
+  --sombra:0 1px 2px rgba(19,28,38,.06);
+  --editable:#fffbe8;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --ink:#e9edf2; --ink-2:#b3bdc8; --ink-3:#8290a0;
+  --azul:#77a8dd; --azul-alto:#a2c5e9; --azul-suave:#1a2836;
+  --ambar:#e2a949; --ambar-suave:#2e2413;
+  --verde:#5fc08c; --verde-suave:#14291e;
+  --rojo:#e58076; --rojo-suave:#2e1917;
+  --papel:#0f151c; --superficie:#171f28; --superficie-2:#1b242e;
+  --linea:#2f3c49; --linea-suave:#242f3a;
+  --sombra:0 1px 2px rgba(0,0,0,.4);
+  --editable:#2a2517;
+}}
+:root[data-theme="dark"]{
+  --ink:#e9edf2; --ink-2:#b3bdc8; --ink-3:#8290a0;
+  --azul:#77a8dd; --azul-alto:#a2c5e9; --azul-suave:#1a2836;
+  --ambar:#e2a949; --ambar-suave:#2e2413;
+  --verde:#5fc08c; --verde-suave:#14291e;
+  --rojo:#e58076; --rojo-suave:#2e1917;
+  --papel:#0f151c; --superficie:#171f28; --superficie-2:#1b242e;
+  --linea:#2f3c49; --linea-suave:#242f3a;
+  --sombra:0 1px 2px rgba(0,0,0,.4);
+  --editable:#2a2517;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--papel);color:var(--ink);
+  font-family:"Source Sans 3",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.92em}
+.num{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+
+/* ---------- estructura ---------- */
+#app{display:grid;grid-template-columns:212px 1fr;min-height:100vh}
+#rail{background:var(--superficie);border-right:1px solid var(--linea);
+  display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.marca{padding:18px 16px 14px;border-bottom:1px solid var(--linea-suave)}
+.marca .logo{display:flex;align-items:center;gap:9px}
+.marca .wordmark{font-weight:700;font-size:17px;letter-spacing:-.2px;color:var(--azul)}
+.marca .sub{font-size:11px;color:var(--ink-3);letter-spacing:.06em;text-transform:uppercase;margin-top:5px}
+.sel-ent{display:block;margin-top:11px}
+.sel-ent .eti{display:block;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;
+  color:var(--ink-3);margin-bottom:3px}
+.sel-ent select{font-size:13px;font-weight:600;padding:4px 7px}
+nav{padding:8px;display:flex;flex-direction:column;gap:1px;flex:1}
+nav button{all:unset;display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:8px 10px;border-radius:5px;cursor:pointer;color:var(--ink-2);font-size:14px}
+nav button:hover{background:var(--superficie-2);color:var(--ink)}
+nav button[aria-current="true"]{background:var(--azul-suave);color:var(--azul-alto);font-weight:600}
+nav button:focus-visible{outline:2px solid var(--azul);outline-offset:1px}
+nav .cuenta{font-size:11.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+nav button[aria-current="true"] .cuenta{color:var(--azul)}
+#rail footer{padding:10px 16px 16px;font-size:11.5px;color:var(--ink-3);border-top:1px solid var(--linea-suave)}
+main{min-width:0;padding-block:0;padding:0 24px 56px}
+.cabecera{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--papel);
+  padding-block:18px 12px;border-bottom:1px solid var(--linea);margin-bottom:16px}
+.cabecera .fila{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap}
+h1{font-size:20px;margin:0;letter-spacing:-.25px;font-weight:700;text-wrap:balance}
+.lede{color:var(--ink-3);font-size:13px;margin:2px 0 0}
+.acciones{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+
+/* ---------- controles ---------- */
+button.btn{all:unset;cursor:pointer;padding:6px 13px;border-radius:5px;font-size:13.5px;font-weight:600;
+  border:1px solid var(--linea);background:var(--superficie);color:var(--ink);white-space:nowrap}
+button.btn:hover{border-color:var(--ink-3)}
+button.btn:focus-visible{outline:2px solid var(--azul);outline-offset:1px}
+button.btn.pri{background:var(--azul);border-color:var(--azul);color:#fff}
+button.btn.pri:hover{background:var(--azul-alto);border-color:var(--azul-alto)}
+button.btn.peligro{color:var(--rojo);border-color:var(--linea)}
+button.btn[disabled]{opacity:.45;cursor:not-allowed}
+button.mini{all:unset;cursor:pointer;font-size:12.5px;color:var(--azul);padding:2px 5px;border-radius:4px}
+button.mini:hover{background:var(--azul-suave)}
+button.mini:focus-visible{outline:2px solid var(--azul);outline-offset:1px}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--superficie);
+  border:1px solid var(--linea);border-radius:5px;padding:5px 8px;width:100%}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--azul);outline-offset:-1px;border-color:var(--azul)}
+input.edit{background:var(--editable)}
+label.campo{display:block;font-size:12px;color:var(--ink-3);margin-bottom:12px;letter-spacing:.02em}
+label.campo>span{display:block;margin-bottom:3px;font-weight:600;text-transform:uppercase;font-size:10.5px;letter-spacing:.06em}
+.rejilla{display:grid;gap:0 14px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.ayuda{font-size:11.5px;color:var(--ink-3);margin-top:-8px;margin-bottom:12px}
+.lista-sel+.ayuda,.tabla-caja+.ayuda{margin-top:8px}
+.ayuda.mal{color:var(--rojo)}
+
+/* ---------- tiles ---------- */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;
+  background:var(--linea);border:1px solid var(--linea);border-radius:6px;overflow:hidden;margin-bottom:16px}
+.tile{background:var(--superficie);padding:11px 14px}
+.tile dt{font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);font-weight:600}
+.tile dd{margin:3px 0 0;font-size:19px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.3px}
+.tile dd small{font-size:12px;color:var(--ink-3);font-weight:400;margin-left:5px}
+.tile.acento dd{color:var(--azul)}
+.tile.aviso dd{color:var(--ambar)}
+.tile.bien dd{color:var(--verde)}
+.tile.mal dd{color:var(--rojo)}
+
+/* ---------- tablas ---------- */
+.tabla-caja{background:var(--superficie);border:1px solid var(--linea);border-radius:6px;overflow-x:auto;box-shadow:var(--sombra)}
+table{border-collapse:collapse;width:100%;font-size:13px}
+thead th{background:var(--superficie-2);text-align:left;font-weight:600;font-size:10.5px;
+  text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);padding:7px 10px;
+  border-bottom:1px solid var(--linea);white-space:nowrap;position:sticky;top:0;z-index:1}
+tbody td{padding:6px 10px;border-bottom:1px solid var(--linea-suave);vertical-align:top}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:var(--superficie-2)}
+tfoot td{padding:8px 10px;border-top:1px solid var(--linea);font-weight:600;background:var(--superficie-2)}
+td.acc{text-align:right;white-space:nowrap}
+.nombre{font-weight:600}
+.dim{color:var(--ink-3);font-size:12px}
+.vacio{padding:34px 16px;text-align:center;color:var(--ink-3);font-size:13.5px}
+
+.pill{display:inline-block;padding:1px 7px;border-radius:9px;font-size:11px;font-weight:600;
+  letter-spacing:.02em;white-space:nowrap;border:1px solid transparent}
+.pill.pend{background:var(--ambar-suave);color:var(--ambar);border-color:var(--ambar)}
+.pill.remesa{background:var(--azul-suave);color:var(--azul-alto);border-color:var(--azul)}
+.pill.cobr{background:var(--verde-suave);color:var(--verde);border-color:var(--verde)}
+.pill.devu{background:var(--rojo-suave);color:var(--rojo);border-color:var(--rojo)}
+.pill.gris{background:var(--superficie-2);color:var(--ink-3);border-color:var(--linea)}
+.pill.baja{background:var(--superficie-2);color:var(--ink-3);border-color:var(--linea)}
+
+.filtros{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.filtros input[type="search"]{max-width:250px}
+.filtros select{width:auto;min-width:130px}
+
+/* ---------- panel lateral ---------- */
+.velo{position:fixed;inset:0;background:rgba(19,28,38,.42);z-index:60;display:flex;justify-content:flex-end}
+.panel{background:var(--superficie);width:min(560px,100%);height:100%;overflow-y:auto;
+  box-shadow:-6px 0 24px rgba(0,0,0,.18);display:flex;flex-direction:column}
+.panel header{position:sticky;top:0;background:var(--superficie);border-bottom:1px solid var(--linea);
+  padding:14px 20px;display:flex;align-items:center;gap:12px;z-index:2}
+.panel header h2{margin:0;font-size:16px;font-weight:700}
+.panel header .cerrar{margin-left:auto}
+.panel .cuerpo{padding:18px 20px;flex:1}
+.panel footer{position:sticky;bottom:0;background:var(--superficie);border-top:1px solid var(--linea);
+  padding:12px 20px;display:flex;gap:8px;justify-content:flex-end;padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+.panel.ancho{width:min(920px,100%)}
+fieldset{border:0;padding:0;margin:0 0 6px}
+legend{font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);
+  font-weight:700;padding:0;margin-bottom:8px;width:100%;border-bottom:1px solid var(--linea-suave);padding-bottom:5px}
+
+/* ---------- factura impresa ---------- */
+.hoja{background:#fff;color:#1a1a1a;padding:34px 38px;border:1px solid var(--linea);border-radius:4px;
+  font-size:12px;line-height:1.5;max-width:660px;margin:0 auto}
+.hoja{position:relative}
+.hoja .logo-hoja{position:absolute;top:30px;right:38px;width:150px;height:auto}
+.hoja h3{font-size:22px;margin:0 0 14px;font-weight:700;color:#1a1a1a}
+.hoja .meta{display:grid;grid-template-columns:auto auto;gap:2px 18px;justify-content:start;margin-bottom:26px;font-size:11.5px}
+.hoja .meta b{font-weight:400;color:#666}
+.hoja .partes{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:26px}
+.hoja .partes h4{margin:0 0 4px;font-size:11px;color:#666;font-weight:600}
+.hoja table{font-size:11.5px;width:100%}
+.hoja thead th{background:transparent;border-bottom:1px solid #999;color:#666;position:static;padding:5px 4px}
+.hoja tbody td{border-bottom:1px solid #eee;padding:8px 4px;color:#1a1a1a}
+.hoja .totales{margin-top:14px;margin-left:auto;width:min(300px,100%)}
+.hoja .totales div{display:flex;justify-content:space-between;padding:5px 4px;border-bottom:1px solid #eee}
+.hoja .totales div:last-child{font-weight:600;border-bottom:1px solid #999}
+.hoja .pie{margin-top:32px;padding-top:8px;border-top:1px solid #ddd;display:flex;justify-content:space-between;font-size:10.5px;color:#666}
+
+.aviso-caja{border:1px solid var(--ambar);background:var(--ambar-suave);color:var(--ink);
+  border-radius:6px;padding:10px 13px;font-size:13px;margin-bottom:14px}
+.aviso-caja b{color:var(--ambar)}
+.aviso-caja.err{border-color:var(--rojo);background:var(--rojo-suave)}
+.aviso-caja.err b{color:var(--rojo)}
+#brindis{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));
+  background:var(--ink);color:var(--papel);padding:9px 17px;border-radius:7px;z-index:90;font-size:13.5px;
+  box-shadow:0 4px 16px rgba(0,0,0,.25);max-width:92vw}
+.check{display:flex;align-items:center;gap:7px;font-size:13px;margin-bottom:6px}
+.check input{width:auto;margin:0}
+.lista-sel{border:1px solid var(--linea);border-radius:6px;max-height:280px;overflow-y:auto;padding:8px 11px;background:var(--superficie-2)}
+.totales-fac{margin:12px 0 2px auto;width:min(340px,100%);font-size:13px}
+.totales-fac div{display:flex;justify-content:space-between;gap:14px;padding:5px 2px;border-bottom:1px solid var(--linea-suave)}
+.totales-fac div:last-child{font-weight:700;border-bottom:0;border-top:1px solid var(--linea);margin-top:2px;padding-top:7px}
+.t-lineas td{vertical-align:middle}
+.t-lineas td:first-child{width:52%}
+.t-lineas th:last-child,.t-lineas td:last-child{width:1%}
+.t-lineas input,.t-lineas select{padding:4px 6px}
+.dos{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+
+@media (max-width:860px){
+  #app{grid-template-columns:1fr}
+  #rail{position:static;height:auto;flex-direction:column;border-right:0;border-bottom:1px solid var(--linea)}
+  .marca{padding-bottom:10px}
+  nav{flex-direction:row;overflow-x:auto;padding:6px 8px}
+  nav button{white-space:nowrap}
+  nav .cuenta{display:none}
+  #rail footer{display:none}
+  main{padding:0 16px 48px}
+  .dos{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+<style>
+[hidden]{display:none!important}
+#acceso{position:fixed;inset:0;z-index:200;background:var(--papel);display:flex;
+  align-items:center;justify-content:center;padding:24px}
+.caja-acceso{background:var(--superficie);border:1px solid var(--linea);border-radius:10px;
+  padding:26px 26px 22px;width:min(380px,100%);box-shadow:0 8px 30px rgba(19,28,38,.12)}
+.caja-acceso h1{font-size:19px;margin:0 0 2px}
+.caja-acceso>p.dim{margin:0 0 18px;font-size:12.5px}
+.caja-acceso .campo{margin-bottom:14px}
+.caja-acceso button[type="submit"]{box-sizing:border-box;padding:9px 13px}
+#pie-rail{line-height:1.4}
+</style>
+</head>
+<body>
+<div id="app" hidden>
+  <aside id="rail">
+    <div class="marca">
+      <div class="logo">
+        <svg width="24" height="24" viewBox="0 0 48 48" aria-hidden="true">
+          <path d="M6 42V22a18 18 0 0 1 36 0v20h-7V22a11 11 0 0 0-22 0v20z" fill="#e9a12c"/>
+          <path d="M24 32a7 7 0 0 1 7 7v3H17v-3a7 7 0 0 1 7-7z" fill="#27578f"/>
+        </svg>
+        <span class="wordmark" id="wordmark">anfalum</span>
+      </div>
+      <div class="sub">Facturación y cobros</div>
+      <label class="sel-ent"><span class="eti">Asociación</span>
+        <select id="sel-ent" aria-label="Asociación en la que estás trabajando"></select></label>
+    </div>
+    <nav id="nav"></nav>
+    <footer id="pie-rail">Cargando…</footer>
+  </aside>
+  <main>
+    <div class="cabecera">
+      <div class="fila">
+        <div>
+          <h1 id="titulo">Resumen</h1>
+          <p class="lede" id="lede"></p>
+        </div>
+        <div class="acciones" id="acciones"></div>
+      </div>
+    </div>
+    <div id="vista"></div>
+  </main>
+</div>
+<div id="capa"></div>
+<div id="acceso" hidden></div>
+<script>
+
+(function(){
+"use strict";
+
+/* ─── Dónde está la base de datos ───────────────────────────────────────────
+   Se rellenan al publicar. Mientras estén vacías, la página las pide al entrar
+   y las guarda en el navegador. Vale la clave publicable (sb_publishable_...) o
+   la antigua anon (eyJ...): las dos están pensadas para ir en el cliente. Lo que
+   protege los datos es el acceso con contraseña y los permisos de la tabla. */
+const SUPABASE_URL = 'https://qggfrwqkapttdftllsfz.supabase.co';
+const SUPABASE_CLAVE = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFnZ2Zyd3FrYXB0dGRmdGxsc2Z6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU1MzI0OTgsImV4cCI6MjExMTEwODQ5OH0.YHgF_0Dka-_cGERjlVM1Oe9yBz2K1p4YIZdtU773K_M';
+
+const CFG = (() => {
+  const q = new URLSearchParams(location.search);
+  const leer = k => { try{ return localStorage.getItem('sb_'+k) || ''; }catch(e){ return ''; } };
+  const guardar = (k,v) => { try{ localStorage.setItem('sb_'+k, v); }catch(e){} };
+  let url = SUPABASE_URL, key = SUPABASE_CLAVE;
+  if(q.get('url')){ url = q.get('url').replace(/\/+$/,''); guardar('url', url); }
+  if(q.get('key')){ key = q.get('key'); guardar('key', key); }
+  return {url: url || leer('url'), key: key || leer('key')};
+})();
+
+
+const LOGO = 'data:image/png;base64,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';
+
+/* ═══════════════ utilidades ═══════════════ */
+const fmtNum = new Intl.NumberFormat('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2});
+const eur = n => fmtNum.format(Number(n)||0)+' €';
+const num2 = n => fmtNum.format(Number(n)||0);
+const r2 = n => Math.round((Number(n)+Number.EPSILON)*100)/100;
+const hoy = () => new Date().toISOString().slice(0,10);
+const fechaES = iso => { if(!iso) return ''; const [a,m,d]=iso.split('-'); return `${d}/${m}/${a}`; };
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const dias = (a,b) => Math.round((new Date(b)-new Date(a))/864e5);
+const trimestreDe = iso => iso ? Math.floor((+iso.slice(5,7)-1)/3)+1 : 0;
+
+const mailOk = m => /^[^\s@,;]+@[^\s@,;]+\.[A-Za-z]{2,}$/.test(String(m||'').trim());
+function ibanLimpio(s){ return String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,''); }
+function ibanValido(s){
+  s = ibanLimpio(s);
+  if(!/^[A-Z]{2}\d{2}[A-Z0-9]{10,30}$/.test(s)) return false;
+  if(/^0+$/.test(s.slice(4))) return false;
+  const rot = s.slice(4)+s.slice(0,4);
+  let resto = 0;
+  for(const ch of rot){
+    const v = /[A-Z]/.test(ch) ? String(ch.charCodeAt(0)-55) : ch;
+    for(const d of v) resto = (resto*10 + (+d)) % 97;
+  }
+  return resto === 1;
+}
+function ibanBonito(s){ return ibanLimpio(s).replace(/(.{4})/g,'$1 ').trim(); }
+
+/* Identificador del acreedor SEPA español: ES + control + sufijo + NIF */
+function idAcreedor(nif, sufijo){
+  nif = String(nif||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+  sufijo = String(sufijo||'000').padStart(3,'0').slice(0,3);
+  const conv = nif.split('').map(c => /[A-Z]/.test(c) ? String(c.charCodeAt(0)-55) : c).join('');
+  let resto = 0;
+  for(const d of (conv+'142800')) resto = (resto*10 + (+d)) % 97;
+  return 'ES' + String(98-resto).padStart(2,'0') + sufijo + nif;
+}
+/* Juego de caracteres SEPA */
+function sepaTxt(s, max){
+  let t = String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .replace(/[ÑñÇç]/g, c => ({'Ñ':'N','ñ':'n','Ç':'C','ç':'c'}[c]))
+    .replace(/[^A-Za-z0-9\/\-?:().,'+ ]/g,' ').replace(/\s+/g,' ').trim();
+  return max ? t.slice(0,max) : t;
+}
+const xesc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
+
+/* ---------- ZIP (almacenado, sin compresión) ---------- */
+const TABLA_CRC = (()=>{ const t=new Uint32Array(256);
+  for(let i=0;i<256;i++){ let c=i; for(let k=0;k<8;k++) c = c&1 ? 0xEDB88320 ^ (c>>>1) : c>>>1; t[i]=c>>>0; }
+  return t; })();
+function crc32(b){ let c=0xFFFFFFFF; for(let i=0;i<b.length;i++) c = TABLA_CRC[(c^b[i])&0xFF] ^ (c>>>8); return (c^0xFFFFFFFF)>>>0; }
+function zip(archivos){
+  const cod = new TextEncoder(); const trozos=[]; const central=[]; let off=0;
+  const u16=n=>[n&255,(n>>8)&255], u32=n=>[n&255,(n>>8)&255,(n>>16)&255,(n>>>24)&255];
+  for(const f of archivos){
+    const nom = cod.encode(f.nombre);
+    const dat = typeof f.datos === 'string' ? cod.encode(f.datos) : f.datos;
+    const crc = crc32(dat);
+    const cab = new Uint8Array([...u32(0x04034b50),...u16(20),...u16(0x0800),...u16(0),...u16(0),...u16(0),
+      ...u32(crc),...u32(dat.length),...u32(dat.length),...u16(nom.length),...u16(0)]);
+    trozos.push(cab,nom,dat);
+    central.push(new Uint8Array([...u32(0x02014b50),...u16(20),...u16(20),...u16(0x0800),...u16(0),...u16(0),...u16(0),
+      ...u32(crc),...u32(dat.length),...u32(dat.length),...u16(nom.length),...u16(0),...u16(0),...u16(0),...u16(0),
+      ...u32(0),...u32(off)]), nom);
+    off += cab.length + nom.length + dat.length;
+  }
+  const tamCen = central.reduce((a,c)=>a+c.length,0);
+  const fin = new Uint8Array([...u32(0x06054b50),...u16(0),...u16(0),...u16(archivos.length),...u16(archivos.length),
+    ...u32(tamCen),...u32(off),...u16(0)]);
+  return new Blob([...trozos,...central,fin],{type:'application/zip'});
+}
+
+/* ═══════════════ estado ═══════════════ */
+/* Varias asociaciones en la misma herramienta. Un registro sin campo `ent` es de ANFALUM,
+   así que todo lo grabado antes de esto sigue valiendo sin tocar un solo documento. */
+const ENT_BASE = 'ANFALUM';
+const SEP = '~';
+const COLS = ['asociados','clientes','facturas','remesas','devoluciones'];
+
+const CONFIG_BASE = {
+  nombre:'', nombreCorto:'', cif:'', via:'', cp:'', loc:'', prov:'', pais:'España', email:'',
+  ibanCargo:'', bic:'', banco:'', idAcreedor:'', sufijo:'000', logo:'',
+  serie:'', siguiente:1,
+  conceptoCuota:'cuota trimestral asociación',
+  regimenCuota:'Exenta art. 20.Uno.12º LIVA'
+};
+const SEMILLAS = {
+  ANFALUM:{
+    nombre:'ASOCIACIÓN ESPAÑOLA DE FABRICANTES DE ILUMINACIÓN',
+    nombreCorto:'ANFALUM', cif:'G78255379',
+    via:'Calle Príncipe de Vergara 12, 1ºB', cp:'28001', loc:'Madrid', prov:'Madrid', pais:'España',
+    email:'contabilidad@anfalum.com',
+    ibanCargo:'ES8900495116802310073416', bic:'BSCHESMMXXX', banco:'Santander',
+    idAcreedor:'', sufijo:'000',
+    serie:'F26', siguiente:37,
+    conceptoCuota:'cuota trimestral asociación',
+    regimenCuota:'Exenta art. 20.Uno.12º LIVA'
+  },
+  ASEFACOL:{
+    nombre:'ASEFACOL', nombreCorto:'ASEFACOL', pais:'España',
+    serie:'A26', siguiente:1,
+    conceptoCuota:'cuota asociación',
+    regimenCuota:'Exenta art. 20.Uno.12º LIVA'
+  }
+};
+const CONFIG_INICIAL = {...CONFIG_BASE, ...SEMILLAS.ANFALUM};
+
+let ENT = ENT_BASE;
+const entDe = x => (x && x.ent) || ENT_BASE;
+const clave = s => ENT===ENT_BASE ? String(s) : ENT+SEP+String(s);
+const rutaConfig = e => e===ENT_BASE ? 'config/empresa' : 'config/'+e;
+const idAEnt = id => id==='empresa' ? ENT_BASE : id;
+
+let db = null, puedeEscribir = true;
+const CRUDO = { config:[], cfgBase:null, asociados:[], clientes:[], facturas:[], remesas:[], devoluciones:[] };
+const S = { config:{...CONFIG_INICIAL}, asociados:[], clientes:[], facturas:[], remesas:[], devoluciones:[] };
+
+function entidades(){
+  const v = new Set([ENT_BASE, 'ASEFACOL', ...CRUDO.config.map(c=>idAEnt(c.id))]);
+  return [ENT_BASE, ...[...v].filter(x=>x!==ENT_BASE).sort((a,b)=>a.localeCompare(b,'es'))];
+}
+function refrescar(){
+  for(const c of COLS) S[c] = CRUDO[c].filter(x=>entDe(x)===ENT);
+  const doc = ENT===ENT_BASE
+    ? (CRUDO.cfgBase || CRUDO.config.find(c=>c.id==='empresa'))
+    : CRUDO.config.find(c=>c.id===ENT);
+  const guardado = {...(doc||{})}; delete guardado.id;
+  const semilla = SEMILLAS[ENT] || {nombre:ENT, nombreCorto:ENT, serie:'F', siguiente:1};
+  S.config = {...CONFIG_BASE, ...semilla, ...guardado};
+  if(!S.config.idAcreedor && S.config.cif) S.config.idAcreedor = idAcreedor(S.config.cif, S.config.sufijo);
+}
+const logoActual = () => S.config.logo || (ENT===ENT_BASE ? LOGO : '');
+let vista = 'resumen';
+const filtros = { aso:{q:'',forma:'',tipo:'',estado:'activos'}, cli:{q:''}, fac:{q:'',estado:'',trim:''} };
+
+const SECCIONES = [
+  {id:'resumen',   nom:'Resumen',    titulo:'Resumen',               lede:'Situación de la facturación y los cobros a asociados.'},
+  {id:'asociados', nom:'Asociados',  titulo:'Asociados',             lede:'Ficha, domiciliación, tipo de cuota e importe de cada asociado.'},
+  {id:'clientes',  nom:'Clientes',   titulo:'Clientes externos',     lede:'Entidades que no son asociadas y a las que también se factura: jornadas, publicidad, servicios.'},
+  {id:'facturas',  nom:'Facturas',   titulo:'Facturas emitidas',     lede:'Serie de facturación y estado de cobro de cada documento.'},
+  {id:'remesas',   nom:'Remesas',    titulo:'Remesas de adeudos',    lede:'Ficheros SEPA pain.008 de cobro de recibos domiciliados.'},
+  {id:'devoluciones', nom:'Devoluciones', titulo:'Devoluciones',     lede:'Recibos devueltos por el banco, con sus gastos.'},
+  {id:'ajustes',   nom:'Ajustes',    titulo:'Ajustes',               lede:'Datos del emisor, cuenta de cargo y numeración.'}
+];
+
+/* ═══════════════ acceso a datos ═══════════════ */
+/* La base de datos vive en Supabase: una sola tabla `docs` con (coleccion, doc_id, datos).
+   El adaptador imita la forma que tenía la base del artefacto, así que el resto de la
+   aplicación —facturas, remesas, PDF, SEPA— no se entera del cambio. */
+const TABLA = 'docs';
+let sb = null, sesion = null;
+
+function crearDb(cli){
+  const oyentes = {}, canales = {};
+  function escuchar(col, fn){
+    (oyentes[col] = oyentes[col] || []).push(fn);
+    if(canales[col]) return;
+    canales[col] = cli.channel('canal-'+col)
+      .on('postgres_changes', {event:'*', schema:'public', table:TABLA, filter:'coleccion=eq.'+col},
+          () => (oyentes[col]||[]).forEach(f=>f()))
+      .subscribe();
+  }
+  const fallo = e => ({code:(e && (e.code || e.message)) || 'error'});
+  return {
+    doc(ruta){
+      const trozos = String(ruta).split('/');
+      const col = trozos.shift(), id = trozos.join('/');
+      return {
+        async set(datos){
+          const d = {...datos}; delete d.id;
+          const {error} = await cli.from(TABLA).upsert(
+            {coleccion:col, doc_id:id, datos:d, actualizado:new Date().toISOString()},
+            {onConflict:'coleccion,doc_id'});
+          if(error) throw Object.assign(new Error(error.message), {code:error.code});
+        },
+        async delete(){
+          const {error} = await cli.from(TABLA).delete().eq('coleccion',col).eq('doc_id',id);
+          if(error) throw Object.assign(new Error(error.message), {code:error.code});
+        },
+        onSnapshot(cb, err){
+          const tirar = async () => {
+            const {data, error} = await cli.from(TABLA).select('datos')
+              .eq('coleccion',col).eq('doc_id',id).maybeSingle();
+            if(error) return err && err(fallo(error));
+            cb({exists: !!data, data: () => (data ? data.datos : {})});
+          };
+          tirar(); escuchar(col, tirar);
+        }
+      };
+    },
+    collection(col){
+      return { onSnapshot(cb, err){
+        const tirar = async () => {
+          const {data, error} = await cli.from(TABLA).select('doc_id,datos')
+            .eq('coleccion',col).order('doc_id');
+          if(error) return err && err(fallo(error));
+          cb({docs:(data||[]).map(r=>({id:r.doc_id, data:()=>r.datos||{}}))});
+        };
+        tirar(); escuchar(col, tirar);
+      }};
+    }
+  };
+}
+
+async function salir(){
+  if(sb) { try{ await sb.auth.signOut(); }catch(e){} }
+  location.reload();
+}
+
+async function arrancar(){
+  if(!CFG.url || !CFG.key){ pantallaConfig(); return; }
+  try{ sb = window.supabase.createClient(CFG.url, CFG.key); }
+  catch(e){ pantallaConfig('No se ha podido conectar con esa dirección.'); return; }
+  let s = null;
+  try{ s = (await sb.auth.getSession()).data.session; }catch(e){ s = null; }
+  sesion = s;
+  if(!sesion){ pantallaAcceso(); return; }
+  ocultarAcceso();
+  db = crearDb(sb);
+
+  db.doc('config/empresa').onSnapshot(s=>{
+    CRUDO.cfgBase = s.exists ? {id:'empresa', ...s.data()} : null;
+    refrescar(); pintar();
+  }, err => pie('Error al leer ajustes: '+err.code));
+
+  const suscribir = (col, destino) => db.collection(col).onSnapshot(s=>{
+    CRUDO[destino] = s.docs.map(d=>({id:d.id, ...d.data()}));
+    refrescar(); pintar();
+  }, err => pie('Error en '+col+': '+err.code));
+
+  suscribir('config','config');
+  suscribir('asociados','asociados');
+  suscribir('clientes','clientes');
+  suscribir('facturas','facturas');
+  suscribir('remesas','remesas');
+  suscribir('devoluciones','devoluciones');
+  refrescar(); pintar();
+}
+async function guardar(ruta, datos){
+  if(!db){ brindis('No hay base de datos: el cambio no se ha guardado.'); return false; }
+  const col = String(ruta).split('/')[0];
+  if(COLS.includes(col) && datos && !datos.ent) datos = {...datos, ent:ENT};
+  try{ await db.doc(ruta).set(datos); return true; }
+  catch(e){
+    if(e && e.code === 'invalid_argument'){ puedeEscribir = false; brindis('No tienes permiso para modificar estos datos.'); }
+    else brindis('No se ha podido guardar ('+(e&&e.code||'error')+').');
+    pintar(); return false;
+  }
+}
+async function borrar(ruta){
+  if(!db) return false;
+  try{ await db.doc(ruta).delete(); return true; }catch(e){ brindis('No se ha podido eliminar.'); return false; }
+}
+
+/* ═══════════════ derivados ═══════════════ */
+const porCif = () => Object.fromEntries(S.asociados.map(a=>[a.cif,a]));
+const asoDe = f => S.asociados.find(a=>a.cif===f.cif) || null;
+const facturasOrden = () => [...S.facturas].sort((a,b)=> (b.num||'').localeCompare(a.num||''));
+function siguienteNumero(){
+  const serie = S.config.serie || 'F26';
+  let max = (S.config.siguiente||1) - 1;
+  for(const f of S.facturas){
+    if(String(f.num||'').startsWith(serie)){
+      const n = parseInt(String(f.num).slice(serie.length),10);
+      if(!isNaN(n) && n>max) max = n;
+    }
+  }
+  return max+1;
+}
+const numFactura = n => (S.config.serie||'F26') + String(n).padStart(4,'0');
+function estadoFactura(f){
+  if(f.estado==='Cobrada') return {k:'cobr', t:'Cobrada'};
+  if(f.estado==='Devuelta') return {k:'devu', t:'Devuelta'};
+  if(f.estado==='En remesa') return {k:'remesa', t:'En remesa'};
+  if(f.estado==='Anulada') return {k:'gris', t:'Anulada'};
+  return {k:'pend', t:'Pendiente'};
+}
+function domiciliable(a){ return a && a.activo!==false && a.forma==='Recibo domiciliado' && ibanValido(a.iban); }
+
+/* --- líneas de factura (las facturas antiguas, de una sola línea, siguen valiendo) --- */
+function normLinea(l){
+  const uds = +l.uds||1, precio = +l.precio||0, tipo = +l.tipoIva||0;
+  const base = r2(precio*uds), iva = r2(base*tipo/100);
+  return {concepto:String(l.concepto||'').trim(), uds, precio, tipoIva:tipo, base, iva, total:r2(base+iva)};
+}
+function lineasDe(f){
+  if(Array.isArray(f.lineas) && f.lineas.length) return f.lineas.map(normLinea);
+  const uds = +f.uds||1;
+  return [normLinea({concepto:f.concepto, uds, precio:(f.precio!=null&&f.precio!=='')?f.precio:r2((+f.base||0)/uds), tipoIva:f.tipoIva})];
+}
+function totalesDe(lineas){
+  const base = r2(lineas.reduce((s,l)=>s+l.base,0));
+  const iva  = r2(lineas.reduce((s,l)=>s+l.iva,0));
+  const porTipo = [];
+  for(const l of lineas){
+    if(!l.tipoIva) continue;
+    let g = porTipo.find(x=>x.tipo===l.tipoIva);
+    if(!g){ g = {tipo:l.tipoIva, base:0, iva:0}; porTipo.push(g); }
+    g.base = r2(g.base+l.base); g.iva = r2(g.iva+l.iva);
+  }
+  porTipo.sort((a,b)=>a.tipo-b.tipo);
+  return {base, iva, total:r2(base+iva), porTipo};
+}
+function conceptoResumen(f){
+  const L = lineasDe(f);
+  if(L.length<2) return L[0].concepto||'';
+  return `${L[0].concepto} (+${L.length-1} línea${L.length>2?'s':''})`;
+}
+const clienteDe = f => S.clientes.find(c=>c.cif===f.cif) || null;
+function emailDe(f){
+  const a = asoDe(f); if(a && a.email) return a.email;
+  if(f.email) return f.email;
+  const c = clienteDe(f); return (c && c.email) || '';
+}
+
+/* ═══════════════ pintado ═══════════════ */
+function pie(txt){
+  const el = document.getElementById('pie-rail');
+  if(!el) return;
+  el.innerHTML = `<div>${esc(txt)}</div>` +
+    (sesion ? `<div style="margin-top:7px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+       <span class="dim" style="font-size:11px">${esc((sesion.user&&sesion.user.email)||'')}</span>
+       <button class="mini" data-salir>Salir</button></div>` : '');
+}
+let brindisTmp;
+function brindis(txt){
+  let el = document.getElementById('brindis');
+  if(!el){ el=document.createElement('div'); el.id='brindis'; document.body.appendChild(el); }
+  el.textContent = txt; clearTimeout(brindisTmp);
+  brindisTmp = setTimeout(()=>el.remove(), 4200);
+}
+function pintar(){
+  const marca = document.getElementById('wordmark');
+  if(marca) marca.textContent = String(S.config.nombreCorto || ENT).toLowerCase();
+  const selEnt = document.getElementById('sel-ent');
+  if(selEnt){
+    const html = entidades().map(e=>`<option value="${esc(e)}"${e===ENT?' selected':''}>${esc(e)}</option>`).join('');
+    if(selEnt.innerHTML !== html) selEnt.innerHTML = html;
+    selEnt.value = ENT;
+  }
+  const sec = SECCIONES.find(s=>s.id===vista) || SECCIONES[0];
+  document.getElementById('titulo').textContent = sec.titulo;
+  document.getElementById('lede').textContent = sec.lede;
+
+  const cuentas = {asociados:S.asociados.filter(a=>a.activo!==false).length, clientes:S.clientes.length,
+                   facturas:S.facturas.length,
+                   remesas:S.remesas.length, devoluciones:S.devoluciones.length};
+  document.getElementById('nav').innerHTML = SECCIONES.map(s=>
+    `<button type="button" data-ir="${s.id}" aria-current="${s.id===vista}">${esc(s.nom)}`+
+    (cuentas[s.id]!==undefined?`<span class="cuenta">${cuentas[s.id]}</span>`:'')+`</button>`).join('');
+
+  const pendientes = S.facturas.filter(f=>!f.estado || f.estado==='Pendiente').length;
+  pie(db ? `${ENT} · ${S.asociados.length} asociados · ${S.facturas.length} facturas · ${pendientes} sin cobrar`
+         : 'Sin conexión con la base de datos');
+
+  document.getElementById('acciones').innerHTML = accionesDe(sec.id);
+  document.getElementById('vista').innerHTML = ({
+    resumen:vResumen, asociados:vAsociados, clientes:vClientes, facturas:vFacturas,
+    remesas:vRemesas, devoluciones:vDevoluciones, ajustes:vAjustes
+  })[sec.id]();
+}
+function accionesDe(id){
+  if(!puedeEscribir) return '';
+  if(id==='asociados') return `<button class="btn" data-acc="exportar-aso">Exportar CSV</button>
+    <button class="btn pri" data-acc="nuevo-aso">Nuevo asociado</button>`;
+  if(id==='clientes') return `<button class="btn pri" data-acc="nuevo-cli">Nuevo cliente</button>`;
+  if(id==='facturas') return `<button class="btn" data-acc="exportar-fac">Exportar CSV</button>
+    <button class="btn" data-acc="zip-fac">Descargar facturas</button>
+    <button class="btn" data-acc="emitir-cuotas">Emitir cuotas del trimestre</button>
+    <button class="btn pri" data-acc="nueva-fac">Nueva factura</button>`;
+  if(id==='remesas') return `<button class="btn pri" data-acc="nueva-remesa">Nueva remesa</button>`;
+  if(id==='devoluciones') return `<button class="btn pri" data-acc="nueva-devol">Registrar devolución</button>`;
+  return '';
+}
+
+/* ---------- Resumen ---------- */
+function vResumen(){
+  const fs = S.facturas.filter(f=>f.estado!=='Anulada');
+  const suma = a => r2(a.reduce((s,f)=>s+(+f.total||0),0));
+  const cobradas = fs.filter(f=>f.estado==='Cobrada');
+  const enRemesa = fs.filter(f=>f.estado==='En remesa');
+  const devueltas = fs.filter(f=>f.estado==='Devuelta');
+  const pend = fs.filter(f=>!f.estado || f.estado==='Pendiente');
+  const gastosDev = r2(S.devoluciones.reduce((s,d)=>s+(+d.gastos||0),0));
+
+  const porTrim = {};
+  for(const f of fs){
+    const k = `${(f.fecha||'').slice(0,4)} · ${trimestreDe(f.fecha)}T`;
+    porTrim[k] = porTrim[k] || {n:0,total:0,cobrado:0,pendiente:0};
+    porTrim[k].n++; porTrim[k].total += +f.total||0;
+    if(f.estado==='Cobrada') porTrim[k].cobrado += +f.total||0;
+    else porTrim[k].pendiente += +f.total||0;
+  }
+  const vencidas = [...pend, ...devueltas, ...enRemesa]
+    .map(f=>({...f, d: f.vto ? dias(f.vto, hoy()) : 0}))
+    .filter(f=>f.d>0).sort((a,b)=>b.d-a.d);
+
+  const sinDatos = S.asociados.filter(a=>a.activo!==false && a.forma==='Recibo domiciliado' && !ibanValido(a.iban));
+  const sinCorreo = S.asociados.filter(a=>a.activo!==false && !mailOk(a.email));
+
+  return `
+  <dl class="tiles">
+    <div class="tile"><dt>Emitido</dt><dd>${eur(suma(fs))}<small>${fs.length} fra.</small></dd></div>
+    <div class="tile bien"><dt>Cobrado</dt><dd>${eur(suma(cobradas))}<small>${cobradas.length}</small></dd></div>
+    <div class="tile acento"><dt>En remesa</dt><dd>${eur(suma(enRemesa))}<small>${enRemesa.length}</small></dd></div>
+    <div class="tile aviso"><dt>Pendiente</dt><dd>${eur(suma(pend))}<small>${pend.length}</small></dd></div>
+    <div class="tile mal"><dt>Devuelto</dt><dd>${eur(suma(devueltas))}<small>+${eur(gastosDev)} gastos</small></dd></div>
+  </dl>
+  ${sinCorreo.length ? `<div class="aviso-caja"><b>Faltan correos.</b> ${sinCorreo.length} asociado${sinCorreo.length>1?'s en alta no tienen':' en alta no tiene'} un correo válido al que mandarle la factura: ${sinCorreo.map(a=>esc(a.nombre)).join(' · ')}.</div>`:''}
+  ${sinDatos.length ? `<div class="aviso-caja"><b>Faltan cuentas.</b> ${sinDatos.length} asociado${sinDatos.length>1?'s':''} marcado${sinDatos.length>1?'s':''} como domiciliado no tiene${sinDatos.length>1?'n':''} un IBAN válido, así que no entrará${sinDatos.length>1?'n':''} en la remesa: ${sinDatos.map(a=>esc(a.nombre)).join(' · ')}.</div>`:''}
+
+  <div class="dos">
+    <section>
+      <h2 style="font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin:6px 0 8px">Por trimestre</h2>
+      <div class="tabla-caja"><table>
+        <thead><tr><th>Periodo</th><th class="num">Nº</th><th class="num">Emitido</th><th class="num">Cobrado</th><th class="num">Pendiente</th></tr></thead>
+        <tbody>${Object.keys(porTrim).length ? Object.entries(porTrim).sort().reverse().map(([k,v])=>`
+          <tr><td class="nombre">${esc(k)}</td><td class="num">${v.n}</td><td class="num mono">${eur(v.total)}</td>
+          <td class="num mono" style="color:var(--verde)">${eur(v.cobrado)}</td>
+          <td class="num mono" style="color:${v.pendiente>0?'var(--ambar)':'var(--ink-3)'}">${eur(v.pendiente)}</td></tr>`).join('')
+          : `<tr><td colspan="5" class="vacio">Todavía no hay facturas emitidas.</td></tr>`}</tbody>
+      </table></div>
+    </section>
+    <section>
+      <h2 style="font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin:6px 0 8px">Vencidas sin cobrar</h2>
+      <div class="tabla-caja"><table>
+        <thead><tr><th>Nº</th><th>Cliente</th><th class="num">Importe</th><th class="num">Días</th></tr></thead>
+        <tbody>${vencidas.length ? vencidas.slice(0,12).map(f=>`
+          <tr><td class="mono">${esc(f.num)}</td><td>${esc(f.nombre)}</td>
+          <td class="num mono">${eur(f.total)}</td>
+          <td class="num" style="color:${f.d>60?'var(--rojo)':'var(--ambar)'}">${f.d}</td></tr>`).join('')
+          : `<tr><td colspan="4" class="vacio">Nada vencido. Todo al día.</td></tr>`}</tbody>
+      </table></div>
+      ${vencidas.length>12?`<p class="dim" style="margin:6px 2px">y ${vencidas.length-12} más.</p>`:''}
+    </section>
+  </div>`;
+}
+
+/* ---------- Asociados ---------- */
+function vAsociados(){
+  const f = filtros.aso;
+  let lista = [...S.asociados].sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||'','es'));
+  if(f.estado==='activos') lista = lista.filter(a=>a.activo!==false);
+  if(f.estado==='baja') lista = lista.filter(a=>a.activo===false);
+  if(f.forma) lista = lista.filter(a=>a.forma===f.forma);
+  if(f.tipo) lista = lista.filter(a=>(a.periodicidad==='Anual'?'Anual':'Trimestral')===f.tipo);
+  if(f.q){ const q=f.q.toLowerCase();
+    lista = lista.filter(a=>[a.nombre,a.cif,a.ref,a.loc].some(v=>String(v||'').toLowerCase().includes(q))); }
+  const totalTrim = r2(lista.reduce((s,a)=>s+(a.periodicidad==='Anual'?0:(+a.cuota||0)),0));
+  const totalAnual = r2(lista.reduce((s,a)=>s+(a.periodicidad==='Anual'?(+a.cuotaAnual||0):0),0));
+
+  return `
+  <div class="filtros">
+    <input type="search" id="q-aso" placeholder="Buscar por nombre, CIF o localidad" value="${esc(f.q)}" aria-label="Buscar asociado">
+    <select id="forma-aso" aria-label="Forma de pago">
+      <option value="">Todas las formas de pago</option>
+      <option value="Recibo domiciliado"${f.forma==='Recibo domiciliado'?' selected':''}>Recibo domiciliado</option>
+      <option value="Transferencia"${f.forma==='Transferencia'?' selected':''}>Transferencia</option>
+    </select>
+    <select id="tipo-aso" aria-label="Tipo de cuota">
+      <option value=""${f.tipo===''?' selected':''}>Trimestrales y anuales</option>
+      <option value="Trimestral"${f.tipo==='Trimestral'?' selected':''}>Solo cuota trimestral</option>
+      <option value="Anual"${f.tipo==='Anual'?' selected':''}>Solo cuota anual</option>
+    </select>
+    <select id="estado-aso" aria-label="Situación">
+      <option value="activos"${f.estado==='activos'?' selected':''}>En alta</option>
+      <option value="baja"${f.estado==='baja'?' selected':''}>De baja</option>
+      <option value=""${f.estado===''?' selected':''}>Todos</option>
+    </select>
+    <span class="dim">${lista.length} de ${S.asociados.length}</span>
+  </div>
+  <div class="tabla-caja"><table>
+    <thead><tr><th>Ref.</th><th>Asociado</th><th>CIF</th><th>Localidad</th><th>Forma de pago</th><th>IBAN</th><th>Tipo de cuota</th><th class="num">Importe de cuota</th><th></th></tr></thead>
+    <tbody>${lista.length ? lista.map(a=>{
+      const ok = ibanValido(a.iban);
+      return `<tr>
+        <td class="mono dim">${esc(a.ref||'')}</td>
+        <td><span class="nombre">${esc(a.nombre)}</span>${a.activo===false?' <span class="pill baja">Baja</span>':''}
+          <div class="dim">${a.email
+            ? (mailOk(a.email) ? esc(a.email) : `${esc(a.email)} <span class="pill devu">revisar</span>`)
+            : '<span class="pill pend">sin correo</span>'}</div></td>
+        <td class="mono">${esc(a.cif||'')}</td>
+        <td>${esc(a.loc||'')}${a.prov&&a.prov!==a.loc?` <span class="dim">(${esc(a.prov)})</span>`:''}</td>
+        <td>${a.forma==='Recibo domiciliado'?'<span class="pill remesa">Recibo</span>':'<span class="pill gris">Transferencia</span>'}</td>
+        <td class="mono" style="white-space:nowrap;${ok?'':'color:var(--ink-3)'}">${a.iban?esc(ibanBonito(a.iban)):'—'}${a.iban&&!ok?' <span class="pill devu">no válido</span>':''}</td>
+        <td>${a.periodicidad==='Anual'
+          ? '<span class="pill remesa">Anual</span>'
+          : `<span class="pill gris">Trimestral</span>${(a.trimestres||[1,2,3,4]).length<4
+              ? `<div class="dim">solo ${(a.trimestres||[]).map(t=>t+'T').join(' y ')}</div>` : ''}`}</td>
+        <td class="num mono">${a.periodicidad==='Anual' ? (a.cuotaAnual?eur(a.cuotaAnual):'—') : (a.cuota?eur(a.cuota):'—')}</td>
+        <td class="acc"><button class="mini" data-editar-aso="${esc(a.id)}">Editar</button></td>
+      </tr>`;}).join('') : `<tr><td colspan="9" class="vacio">No hay asociados que encajen con el filtro.</td></tr>`}</tbody>
+    ${lista.length?`<tfoot>
+      ${totalTrim?`<tr><td colspan="7">Total por trimestre</td><td class="num mono">${eur(totalTrim)}</td><td></td></tr>`:''}
+      ${totalAnual?`<tr><td colspan="7">Total cuotas anuales</td><td class="num mono">${eur(totalAnual)}</td><td></td></tr>`:''}
+    </tfoot>`:''}
+  </table></div>`;
+}
+
+/* ---------- Clientes externos ---------- */
+function vClientes(){
+  const q = filtros.cli.q.toLowerCase();
+  let lista = [...S.clientes].sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||'','es'));
+  if(q) lista = lista.filter(c=>[c.nombre,c.cif,c.loc,c.email].some(v=>String(v||'').toLowerCase().includes(q)));
+  return `
+  <div class="aviso-caja"><b>Clientes que no son asociados.</b> Para facturas sueltas: jornadas, publicidad, servicios.
+    No entran en las cuotas trimestrales ni en las remesas de adeudos domiciliados. También puedes crearlos sobre la marcha al emitir una factura suelta.</div>
+  <div class="filtros">
+    <input type="search" id="q-cli" placeholder="Buscar por nombre, CIF o localidad" value="${esc(filtros.cli.q)}" aria-label="Buscar cliente">
+    <span class="dim">${lista.length} de ${S.clientes.length}</span>
+  </div>
+  <div class="tabla-caja"><table>
+    <thead><tr><th>Cliente</th><th>CIF</th><th>Domicilio</th><th>Correo</th><th class="num">Facturas</th><th class="num">Facturado</th><th></th></tr></thead>
+    <tbody>${lista.length ? lista.map(c=>{
+      const fs = S.facturas.filter(f=>f.cif===c.cif && f.estado!=='Anulada');
+      const suma = r2(fs.reduce((t,x)=>t+(+x.total||0),0));
+      return `<tr>
+        <td class="nombre">${esc(c.nombre)}</td>
+        <td class="mono dim">${esc(c.cif||'')}</td>
+        <td class="dim">${esc([c.via,c.loc].filter(Boolean).join(' · '))}</td>
+        <td class="dim">${esc(c.email||'')}</td>
+        <td class="num mono">${fs.length||'—'}</td>
+        <td class="num mono">${fs.length?num2(suma):'—'}</td>
+        <td class="acc">${puedeEscribir?`<button class="mini" data-editar-cli="${esc(c.id)}">Editar</button>`:''}</td>
+      </tr>`;}).join('') : `<tr><td colspan="7" class="vacio">Todavía no hay clientes externos.</td></tr>`}</tbody>
+  </table></div>`;
+}
+
+/* ---------- Facturas ---------- */
+function facturasFiltradas(){
+  const f = filtros.fac;
+  let lista = facturasOrden();
+  if(f.estado) lista = lista.filter(x => f.estado==='Pendiente' ? (!x.estado||x.estado==='Pendiente') : x.estado===f.estado);
+  if(f.trim) lista = lista.filter(x => `${(x.fecha||'').slice(0,4)}-${trimestreDe(x.fecha)}` === f.trim);
+  if(f.q){ const q=f.q.toLowerCase();
+    lista = lista.filter(x=>[x.num,x.nombre,x.cif].some(v=>String(v||'').toLowerCase().includes(q))); }
+  return lista;
+}
+function csvEnvio(lista){
+  return csvTabla(['PARA','ASUNTO','ADJUNTO','Nº FRA.','CLIENTE','IMPORTE','VENCIMIENTO','CUERPO'],
+    lista.map(f=>{
+      const a = asoDe(f), Lf = lineasDe(f);
+      return [emailDe(f), `${S.config.nombreCorto||'ANFALUM'} · factura ${f.num}`,
+        `${f.num} ${sepaTxt(f.nombre,40)}.pdf`, f.num, f.nombre, num2(f.total), fechaES(f.vto),
+        `Buenos días,\n\nOs adjuntamos la factura ${f.num}, de ${eur(f.total)}, correspondiente a `+
+        (Lf.length>1 ? `estos conceptos: ${Lf.map(l=>l.concepto).join('; ')}` : `la ${Lf[0].concepto||''}`)+
+        `${f.periodo?' de '+f.periodo:''}.\n\n`+
+        ((a&&a.forma==='Recibo domiciliado')
+          ? 'El importe se cargará por recibo domiciliado en la cuenta que tenéis comunicada.'
+          : `El importe podéis abonarlo por transferencia a la cuenta ${ibanBonito(S.config.ibanCargo)}, indicando el número de factura.`)+
+        `\n\nUn saludo,\n${S.config.nombre}`];
+    }));
+}
+function vFacturas(){
+  const lista = facturasFiltradas();
+  const f = filtros.fac;
+  const total = r2(lista.reduce((s,x)=>s+(+x.total||0),0));
+  const periodos = [...new Set(S.facturas.map(x=>`${(x.fecha||'').slice(0,4)}-${trimestreDe(x.fecha)}`))].sort().reverse();
+
+  return `
+  <div class="filtros">
+    <input type="search" id="q-fac" placeholder="Buscar por número, cliente o CIF" value="${esc(f.q)}" aria-label="Buscar factura">
+    <select id="estado-fac" aria-label="Estado">
+      <option value="">Todos los estados</option>
+      ${['Pendiente','En remesa','Cobrada','Devuelta','Anulada'].map(e=>`<option value="${e}"${f.estado===e?' selected':''}>${e}</option>`).join('')}
+    </select>
+    <select id="trim-fac" aria-label="Periodo">
+      <option value="">Todos los periodos</option>
+      ${periodos.map(p=>`<option value="${p}"${f.trim===p?' selected':''}>${p.split('-')[0]} · ${p.split('-')[1]}T</option>`).join('')}
+    </select>
+    <span class="dim">${lista.length} de ${S.facturas.length}</span>
+  </div>
+  <div class="tabla-caja"><table>
+    <thead><tr><th>Nº</th><th>Fecha</th><th>Vto.</th><th>Cliente</th><th>Concepto</th><th class="num">Base</th><th class="num">IVA</th><th class="num">Total</th><th>Estado</th><th></th></tr></thead>
+    <tbody>${lista.length ? lista.map(x=>{
+      const e = estadoFactura(x);
+      return `<tr>
+        <td class="mono nombre">${esc(x.num)}</td>
+        <td class="mono dim">${fechaES(x.fecha)}</td>
+        <td class="mono dim">${fechaES(x.vto)}</td>
+        <td>${esc(x.nombre)}<div class="dim mono">${esc(x.cif||'')}${asoDe(x)?'':' · no asociado'}</div></td>
+        <td class="dim">${esc(conceptoResumen(x))}</td>
+        <td class="num mono">${num2(x.base)}</td>
+        <td class="num mono">${x.iva?num2(x.iva):'—'}</td>
+        <td class="num mono nombre">${num2(x.total)}</td>
+        <td><span class="pill ${e.k}">${e.t}</span>${x.fcobro?`<div class="dim mono">${fechaES(x.fcobro)}</div>`:''}</td>
+        <td class="acc"><button class="mini" data-ver-fac="${esc(x.id)}">Ver</button>${puedeEscribir?`<button class="mini" data-editar-fac="${esc(x.id)}">Editar</button><button class="mini" data-cobro-fac="${esc(x.id)}">Cobro</button>`:''}</td>
+      </tr>`;}).join('') : `<tr><td colspan="10" class="vacio">No hay facturas que encajen con el filtro.</td></tr>`}</tbody>
+    ${lista.length?`<tfoot><tr><td colspan="7">Total</td><td class="num mono">${eur(total)}</td><td colspan="2"></td></tr></tfoot>`:''}
+  </table></div>`;
+}
+
+/* ---------- Remesas ---------- */
+function vRemesas(){
+  const lista = [...S.remesas].sort((a,b)=>(b.fechaCargo||'').localeCompare(a.fechaCargo||''));
+  return `
+  <div class="tabla-caja"><table>
+    <thead><tr><th>Fichero</th><th>Fecha de cargo</th><th>Secuencia</th><th class="num">Operaciones</th><th class="num">Importe</th><th>Estado</th><th></th></tr></thead>
+    <tbody>${lista.length ? lista.map(r=>`
+      <tr>
+        <td class="mono nombre">${esc(r.nombre||r.id)}</td>
+        <td class="mono">${fechaES(r.fechaCargo)}</td>
+        <td>${(r.secuencias||[]).map(s=>`<span class="pill gris">${esc(s)}</span>`).join(' ')||'<span class="pill gris">RCUR</span>'}</td>
+        <td class="num">${(r.lineas||[]).length}</td>
+        <td class="num mono nombre">${eur(r.importe)}</td>
+        <td><span class="pill ${r.estado==='Cobrada'?'cobr':'remesa'}">${esc(r.estado||'Enviada')}</span></td>
+        <td class="acc"><button class="mini" data-ver-remesa="${esc(r.id)}">Abrir</button></td>
+      </tr>`).join('') : `<tr><td colspan="7" class="vacio">Todavía no se ha generado ninguna remesa. Empieza con <b>Nueva remesa</b>.</td></tr>`}</tbody>
+  </table></div>`;
+}
+
+/* ---------- Devoluciones ---------- */
+function vDevoluciones(){
+  const lista = [...S.devoluciones].sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+  const tot = r2(lista.reduce((s,d)=>s+(+d.importe||0)+(+d.gastos||0),0));
+  return `
+  <div class="tabla-caja"><table>
+    <thead><tr><th>F. devol.</th><th>Deudor</th><th>Factura</th><th>Banco</th><th class="num">Recibo</th><th class="num">Gastos</th><th class="num">Total</th><th>Estado</th><th></th></tr></thead>
+    <tbody>${lista.length ? lista.map(d=>`
+      <tr>
+        <td class="mono">${fechaES(d.fecha)}</td>
+        <td class="nombre">${esc(d.nombre||'Sin identificar')}${d.ibanDev?`<div class="dim mono">${esc(ibanBonito(d.ibanDev))}</div>`:''}</td>
+        <td class="mono">${esc(d.numFactura||'—')}</td>
+        <td>${esc(d.banco||'')}</td>
+        <td class="num mono">${num2(d.importe)}</td>
+        <td class="num mono">${num2(d.gastos)}</td>
+        <td class="num mono nombre">${num2((+d.importe||0)+(+d.gastos||0))}</td>
+        <td><span class="pill ${d.estado==='Recuperada'?'cobr':'devu'}">${esc(d.estado||'Pendiente')}</span></td>
+        <td class="acc">${puedeEscribir?`<button class="mini" data-editar-devol="${esc(d.id)}">Editar</button>`:''}</td>
+      </tr>`).join('') : `<tr><td colspan="9" class="vacio">Ningún recibo devuelto registrado.</td></tr>`}</tbody>
+    ${lista.length?`<tfoot><tr><td colspan="6">Total devuelto con gastos</td><td class="num mono">${eur(tot)}</td><td colspan="2"></td></tr></tfoot>`:''}
+  </table></div>`;
+}
+
+/* ---------- Ajustes ---------- */
+function vAjustes(){
+  const c = S.config;
+  const idCalc = c.cif ? idAcreedor(c.cif, c.sufijo) : '';
+  return `
+  <div style="max-width:720px">
+  <div class="aviso-caja">Estos ajustes son los de <b>${esc(ENT)}</b>. Cada asociación tiene sus propios datos de emisor, su cuenta de cobro y su serie de facturación; se cambia de una a otra con el desplegable de la izquierda.</div>
+  <form id="form-ajustes">
+    <fieldset><legend>Emisor</legend>
+      <label class="campo"><span>Razón social</span><input name="nombre" value="${esc(c.nombre)}"></label>
+      <div class="rejilla">
+        <label class="campo"><span>Nombre corto</span><input name="nombreCorto" value="${esc(c.nombreCorto)}"></label>
+        <label class="campo"><span>CIF</span><input name="cif" class="mono" value="${esc(c.cif)}"></label>
+        <label class="campo"><span>Correo</span><input name="email" value="${esc(c.email)}"></label>
+      </div>
+      <label class="campo"><span>Domicilio</span><input name="via" value="${esc(c.via)}"></label>
+      <div class="rejilla">
+        <label class="campo"><span>C.P.</span><input name="cp" class="mono" value="${esc(c.cp)}"></label>
+        <label class="campo"><span>Localidad</span><input name="loc" value="${esc(c.loc)}"></label>
+        <label class="campo"><span>Provincia</span><input name="prov" value="${esc(c.prov)}"></label>
+      </div>
+    </fieldset>
+    <fieldset><legend>Cobro por adeudo SEPA</legend>
+      <label class="campo"><span>Cuenta de abono (IBAN)</span><input name="ibanCargo" class="mono edit" value="${esc(ibanBonito(c.ibanCargo))}"></label>
+      <p class="ayuda${(ibanValido(c.ibanCargo)||!c.ibanCargo)?'':' mal'}">${ibanValido(c.ibanCargo)?'IBAN válido · '+esc(c.banco||''):(c.ibanCargo?'Revisa el IBAN: el dígito de control no cuadra.':'Todavía sin cuenta de abono: hace falta para generar remesas.')}</p>
+      <div class="rejilla">
+        <label class="campo"><span>BIC</span><input name="bic" class="mono" value="${esc(c.bic)}"></label>
+        <label class="campo"><span>Banco</span><input name="banco" value="${esc(c.banco)}"></label>
+        <label class="campo"><span>Sufijo</span><input name="sufijo" class="mono" value="${esc(c.sufijo)}"></label>
+      </div>
+      <label class="campo"><span>Identificador del acreedor</span><input name="idAcreedor" class="mono edit" value="${esc(c.idAcreedor||idCalc)}"></label>
+      <p class="ayuda">${idCalc?`Calculado a partir del CIF y el sufijo: <b class="mono">${esc(idCalc)}</b>.`:'Se calcula solo en cuanto pongas el CIF.'} Confírmalo con el banco antes de enviar la primera remesa: si el que la asociación tiene dado de alta es otro, cámbialo aquí.</p>
+    </fieldset>
+    <fieldset><legend>Facturación</legend>
+      <div class="rejilla">
+        <label class="campo"><span>Serie</span><input name="serie" class="mono" value="${esc(c.serie)}"></label>
+        <label class="campo"><span>Siguiente número</span><input name="siguiente" type="number" min="1" class="mono edit" value="${siguienteNumero()}"></label>
+      </div>
+      <p class="ayuda">La próxima factura saldrá como <b class="mono">${esc(numFactura(siguienteNumero()))}</b>. Los números no se reutilizan ni se reinician: los huecos se dejan.</p>
+      <label class="campo"><span>Concepto de la cuota</span><input name="conceptoCuota" value="${esc(c.conceptoCuota)}"></label>
+      <label class="campo"><span>Régimen de IVA de la cuota</span><input name="regimenCuota" value="${esc(c.regimenCuota)}"></label>
+    </fieldset>
+    <div style="display:flex;gap:8px;justify-content:flex-end;padding-top:4px">
+      <button type="submit" class="btn pri">Guardar ajustes</button>
+    </div>
+  </form>
+  <form id="form-logo" style="margin-top:18px">
+    <fieldset><legend>Logo de la factura</legend>
+      ${logoActual()
+        ? `<div style="background:#fff;border:1px solid var(--linea);border-radius:6px;padding:12px;display:inline-block;margin-bottom:10px"><img src="${logoActual()}" alt="Logo de ${esc(ENT)}" style="max-width:220px;height:auto;display:block"></div>`
+        : `<p class="ayuda" style="margin-top:0">Todavía no hay logo: la factura sale solo con el nombre y los datos del emisor.</p>`}
+      <label class="campo"><span>Subir un logo (PNG o JPG, hasta 300 KB)</span>
+        <input type="file" id="logo-ajustes" accept="image/png,image/jpeg"></label>
+      <p class="ayuda">Se imprime arriba a la derecha, tanto en la factura que ves en pantalla como en el PDF. Sale mejor si es apaisado, con el fondo transparente o blanco.</p>
+      ${c.logo?`<button type="button" class="btn peligro" data-quitar-logo>Quitar el logo</button>`:''}
+    </fieldset>
+  </form>
+  <div style="margin-top:22px;padding-top:14px;border-top:1px solid var(--linea)">
+    <button type="button" class="btn" data-nueva-ent>Dar de alta otra asociación</button>
+    <p class="ayuda" style="margin-top:8px">Cada asociación que des de alta arranca vacía, con sus propios asociados, facturas y remesas. Las que ya existen no se tocan.</p>
+  </div>
+  </div>`;
+}
+
+/* ═══════════════ panel lateral ═══════════════ */
+function abrirPanel(titulo, cuerpo, pie, ancho){
+  const capa = document.getElementById('capa');
+  capa.innerHTML = `<div class="velo" data-velo>
+    <div class="panel${ancho?' ancho':''}" role="dialog" aria-modal="true" aria-label="${esc(titulo)}">
+      <header><h2>${esc(titulo)}</h2><button class="btn cerrar" data-cerrar>Cerrar</button></header>
+      <div class="cuerpo">${cuerpo}</div>
+      ${pie?`<footer>${pie}</footer>`:''}
+    </div></div>`;
+  const primero = capa.querySelector('input,select,textarea,button:not([data-cerrar])');
+  if(primero) primero.focus();
+}
+function cerrarPanel(){ document.getElementById('capa').innerHTML=''; }
+
+/* ---------- ficha de asociado ---------- */
+function panelAsociado(id){
+  const a = id ? S.asociados.find(x=>x.id===id) : null;
+  const v = a || {ref:'',nombre:'',cif:'',via:'',cp:'',loc:'',prov:'',pais:'España',iban:'',
+                  email:'',forma:'Recibo domiciliado',cuota:0,cuotaAnual:0,periodicidad:'Trimestral',trimestres:[1,2,3,4],
+                  notaCuota:'',mandato:'',fechaMandato:'',secuencia:'RCUR',activo:true,obs:''};
+  abrirPanel(a? v.nombre : 'Nuevo asociado', `
+   <form id="form-aso" data-id="${esc(id||'')}">
+    <fieldset><legend>Identificación</legend>
+      <div class="rejilla">
+        <label class="campo"><span>Referencia</span><input name="ref" class="mono" value="${esc(v.ref)}" placeholder="ASO-000"></label>
+        <label class="campo"><span>CIF</span><input name="cif" class="mono" required value="${esc(v.cif)}"></label>
+      </div>
+      <label class="campo"><span>Razón social</span><input name="nombre" required value="${esc(v.nombre)}"></label>
+      <label class="campo"><span>Correo para enviar las facturas</span><input name="email" type="text" class="edit" value="${esc(v.email||'')}" placeholder="facturas@empresa.com"></label>
+      <label class="campo"><span>Domicilio</span><input name="via" value="${esc(v.via)}"></label>
+      <div class="rejilla">
+        <label class="campo"><span>C.P.</span><input name="cp" class="mono" value="${esc(v.cp)}"></label>
+        <label class="campo"><span>Localidad</span><input name="loc" value="${esc(v.loc)}"></label>
+        <label class="campo"><span>Provincia</span><input name="prov" value="${esc(v.prov)}"></label>
+      </div>
+    </fieldset>
+    <fieldset><legend>Cuota y cobro</legend>
+      <div class="rejilla">
+        <label class="campo"><span>Periodicidad</span><select name="periodicidad" id="periodicidad-aso">
+          <option value="Trimestral"${v.periodicidad!=='Anual'?' selected':''}>Trimestral</option>
+          <option value="Anual"${v.periodicidad==='Anual'?' selected':''}>Anual</option>
+        </select></label>
+        <label class="campo"><span>Cuota trimestral €</span><input name="cuota" type="number" step="0.01" min="0" class="mono edit" value="${v.cuota||''}"></label>
+        <label class="campo"><span>Cuota anual €</span><input name="cuotaAnual" type="number" step="0.01" min="0" class="mono edit" value="${v.cuotaAnual||''}"></label>
+      </div>
+      <label class="campo"><span>Trimestres en que paga</span></label>
+      <div style="display:flex;gap:14px;margin:-8px 0 12px">
+        ${[1,2,3,4].map(t=>`<label class="check" style="margin:0"><input type="checkbox" name="trim" value="${t}"${(v.trimestres||[1,2,3,4]).includes(t)?' checked':''}> ${t}T</label>`).join('')}
+      </div>
+      <label class="campo"><span>Nota sobre la cuota</span><input name="notaCuota" value="${esc(v.notaCuota||'')}" placeholder="p. ej. 50 % de cuota, paga 3T y 4T"></label>
+      <div class="rejilla">
+        <label class="campo"><span>Forma de pago</span><select name="forma">
+          <option value="Recibo domiciliado"${v.forma==='Recibo domiciliado'?' selected':''}>Recibo domiciliado</option>
+          <option value="Transferencia"${v.forma==='Transferencia'?' selected':''}>Transferencia</option>
+        </select></label>
+        <label class="campo"><span>Situación</span><select name="activo">
+          <option value="1"${v.activo!==false?' selected':''}>En alta</option>
+          <option value="0"${v.activo===false?' selected':''}>De baja</option>
+        </select></label>
+        <div></div>
+      </div>
+      <label class="campo"><span>IBAN de cargo</span><input name="iban" class="mono edit" id="iban-aso" value="${esc(ibanBonito(v.iban))}"></label>
+      <p class="ayuda" id="iban-msg"></p>
+      <div class="rejilla">
+        <label class="campo"><span>Referencia del mandato</span><input name="mandato" class="mono" value="${esc(v.mandato)}" placeholder="${esc(v.cif||'CIF')}"></label>
+        <label class="campo"><span>Fecha de firma</span><input name="fechaMandato" type="date" value="${esc(v.fechaMandato)}"></label>
+        <label class="campo"><span>Secuencia</span><select name="secuencia">
+          <option value="FRST"${v.secuencia==='FRST'?' selected':''}>FRST · primer adeudo</option>
+          <option value="RCUR"${v.secuencia!=='FRST'?' selected':''}>RCUR · sucesivos</option>
+        </select></label>
+      </div>
+      <label class="campo"><span>Observaciones</span><textarea name="obs" rows="2">${esc(v.obs)}</textarea></label>
+    </fieldset>
+   </form>`,
+   `${a?`<button class="btn peligro" data-borrar-aso="${esc(id)}">Eliminar</button>`:''}
+    <button class="btn" data-cerrar>Cancelar</button>
+    <button class="btn pri" data-guardar-aso>Guardar</button>`);
+  revisarIban();
+}
+/* ---------- ficha de cliente externo ---------- */
+function panelCliente(id){
+  const c = S.clientes.find(x=>x.id===id) || {};
+  const nuevo = !id;
+  abrirPanel(nuevo?'Nuevo cliente externo':'Cliente · '+(c.nombre||''), `
+   <form id="form-cli" data-id="${esc(id||'')}">
+    <fieldset><legend>Identificación</legend>
+      <label class="campo"><span>Razón social</span><input name="nombre" value="${esc(c.nombre||'')}" required></label>
+      <div class="rejilla">
+        <label class="campo"><span>CIF / NIF</span><input name="cif" value="${esc(c.cif||'')}" class="mono" required></label>
+        <label class="campo"><span>Correo de facturación</span><input name="email" type="email" value="${esc(c.email||'')}"></label>
+      </div>
+    </fieldset>
+    <fieldset><legend>Domicilio fiscal</legend>
+      <label class="campo"><span>Vía</span><input name="via" value="${esc(c.via||'')}"></label>
+      <div class="rejilla">
+        <label class="campo"><span>C.P.</span><input name="cp" value="${esc(c.cp||'')}" class="mono"></label>
+        <label class="campo"><span>Localidad</span><input name="loc" value="${esc(c.loc||'')}"></label>
+        <label class="campo"><span>Provincia</span><input name="prov" value="${esc(c.prov||'')}"></label>
+      </div>
+      <label class="campo"><span>País</span><input name="pais" value="${esc(c.pais||'España')}"></label>
+    </fieldset>
+    <fieldset><legend>Notas</legend>
+      <label class="campo"><span>Observaciones</span><textarea name="obs" rows="2">${esc(c.obs||'')}</textarea></label>
+    </fieldset>
+   </form>`,
+   `${!nuevo&&puedeEscribir?`<button class="btn peligro" data-borrar-cli="${esc(id)}">Eliminar</button>`:''}
+    <button class="btn" data-cerrar>Cancelar</button>
+    <button class="btn pri" data-guardar-cli>Guardar</button>`);
+}
+
+function revisarDevolucion(){
+  const msg = document.getElementById('dev-msg'); if(!msg) return;
+  const iban = ibanLimpio((document.getElementById('iban-dev')||{}).value);
+  const imp = parseFloat((document.getElementById('importe-dev')||{}).value) || 0;
+  const sel = document.getElementById('fra-dev');
+  const deudor = document.getElementById('deudor-dev');
+  const partes = [];
+  let a = null;
+  if(iban){
+    if(!ibanValido(iban)) partes.push('<b style="color:var(--rojo)">Ese IBAN no es válido</b>: revisa el dígito de control.');
+    else {
+      a = S.asociados.find(x=>ibanLimpio(x.iban)===iban);
+      if(a){
+        partes.push(`El IBAN es de <b>${esc(a.nombre)}</b> (${esc(a.cif)}).`);
+        if(deudor && !deudor.value) deudor.value = a.nombre;
+      } else partes.push('IBAN válido, pero <b>no es de ningún asociado</b> de la ficha. Puede venir de otro recibo que no lleva este control.');
+    }
+  }
+  const dom = S.facturas.filter(f=>f.estado!=='Anulada');
+  let cand = a ? dom.filter(f=>f.cif===a.cif) : dom;
+  if(imp>0){
+    const exactas = cand.filter(f=>Math.abs((+f.total||0)-imp)<0.01);
+    if(exactas.length) partes.push('Cuadra con '+exactas.map(f=>`<b>${esc(f.num)}</b> · ${esc(f.nombre)} · ${eur(f.total)}`).join(' · ')+'.');
+    else if(a) partes.push(`Ninguna factura de ${esc(a.nombre)} suma ${eur(imp)}: sus facturas son `+
+      (cand.length?cand.map(f=>`${esc(f.num)} (${eur(f.total)})`).join(' · '):'ninguna')+'.');
+    else partes.push(`<b>Ningún importe emitido cuadra con ${eur(imp)}</b>. Si el banco tampoco da el IBAN, pide el detalle del recibo.`);
+    if(exactas.length===1 && sel && !sel.value) sel.value = exactas[0].num;
+  }
+  msg.innerHTML = partes.length ? partes.join(' ')
+    : 'Pega aquí el IBAN que da el banco en el detalle de la devolución y te digo de quién es y qué factura suya cuadra.';
+  msg.className = 'ayuda';
+}
+function revisarIban(){
+  const inp = document.getElementById('iban-aso'), msg = document.getElementById('iban-msg');
+  if(!inp||!msg) return;
+  const v = ibanLimpio(inp.value);
+  if(!v){ msg.textContent='Sin IBAN no se puede domiciliar: la factura habrá que cobrarla por transferencia.'; msg.className='ayuda'; return; }
+  if(ibanValido(v)){ msg.textContent='IBAN válido · '+ibanBonito(v); msg.className='ayuda'; }
+  else { msg.textContent='El dígito de control no cuadra. Revisa el IBAN antes de meterlo en una remesa.'; msg.className='ayuda mal'; }
+}
+
+/* ---------- emitir cuotas ---------- */
+function cuotaDe(a, modo){ return modo==='Anual' ? (+a.cuotaAnual||0) : (+a.cuota||0); }
+function candidatosCuota(modo, trim){
+  return S.asociados.filter(a=>{
+    if(a.activo===false) return false;
+    if(modo==='Anual') return (a.periodicidad==='Anual') && (+a.cuotaAnual||0)>0;
+    if(a.periodicidad==='Anual') return false;
+    if(!((+a.cuota||0)>0)) return false;
+    return (a.trimestres||[1,2,3,4]).includes(+trim);
+  }).sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||'','es'));
+}
+function panelCuotas(modo, trimSel){
+  const hoyIso = hoy();
+  modo = modo || 'Trimestral';
+  const trim = trimSel || Math.floor((new Date().getMonth())/3)+1;
+  const candidatos = candidatosCuota(modo, trim);
+  const suma = r2(candidatos.reduce((s,a)=>s+cuotaDe(a,modo),0));
+  const anuales = S.asociados.filter(a=>a.activo!==false && a.periodicidad==='Anual');
+  const fueraTrim = S.asociados.filter(a=>a.activo!==false && a.periodicidad!=='Anual'
+    && (+a.cuota||0)>0 && !(a.trimestres||[1,2,3,4]).includes(+trim));
+  const sinCuota = S.asociados.filter(a=>a.activo!==false && a.periodicidad!=='Anual' && !(+a.cuota>0));
+  abrirPanel(modo==='Anual'?'Emitir cuotas anuales':'Emitir cuotas del trimestre', `
+   <form id="form-cuotas" data-modo="${modo}">
+    <div class="rejilla">
+      <label class="campo"><span>Cuota a emitir</span><select name="modo" id="modo-cuotas">
+        <option value="Trimestral"${modo!=='Anual'?' selected':''}>Trimestral</option>
+        <option value="Anual"${modo==='Anual'?' selected':''}>Anual</option>
+      </select></label>
+      <label class="campo"><span>Fecha de factura</span><input name="fecha" type="date" value="${hoyIso}" required></label>
+      <label class="campo"><span>Vencimiento</span><input name="vto" type="date" value="${hoyIso}" required></label>
+      <label class="campo"><span>${modo==='Anual'?'Ejercicio':'Trimestre'}</span><select name="trim" id="trim-cuotas"${modo==='Anual'?' disabled':''}>
+        ${[1,2,3,4].map(t=>`<option value="${t}"${t===+trim?' selected':''}>${t}T ${new Date().getFullYear()}</option>`).join('')}
+      </select></label>
+    </div>
+    <label class="campo"><span>Concepto</span><input name="concepto" value="${esc(modo==='Anual'?(S.config.conceptoCuotaAnual||'cuota anual asociación'):S.config.conceptoCuota)}" required></label>
+    <label class="campo"><span>Régimen de IVA</span><input name="regimen" value="${esc(S.config.regimenCuota)}"></label>
+    <fieldset><legend>Asociados a facturar · ${candidatos.length}</legend>
+      ${candidatos.length?`<div class="lista-sel">
+        ${candidatos.map(a=>`<label class="check"><input type="checkbox" name="sel" value="${esc(a.id)}" checked>
+          <span style="flex:1">${esc(a.nombre)}${a.notaCuota?` <span class="dim">· ${esc(a.notaCuota)}</span>`:''}</span>
+          <span class="mono num" style="min-width:86px">${eur(cuotaDe(a,modo))}</span>
+          <span class="pill ${a.forma==='Recibo domiciliado'?'remesa':'gris'}">${a.forma==='Recibo domiciliado'?'Recibo':'Transf.'}</span></label>`).join('')}
+      </div>
+      <p class="ayuda">Se emitirán ${candidatos.length} facturas desde la <b class="mono">${esc(numFactura(siguienteNumero()))}</b>, por <b>${eur(suma)}</b>.</p>`
+      :`<p class="vacio" style="padding:18px">No hay asociados con cuota ${modo==='Anual'?'anual':'de este trimestre'} en su ficha.</p>`}
+    </fieldset>
+    ${modo!=='Anual' && (fueraTrim.length||anuales.length||sinCuota.length) ? `<fieldset><legend>Quedan fuera</legend>
+      <div class="tabla-caja"><table><thead><tr><th>Asociado</th><th class="num">Cuota</th><th>Motivo</th></tr></thead><tbody>
+        ${fueraTrim.map(a=>`<tr><td>${esc(a.nombre)}</td><td class="num mono">${eur(a.cuota)}</td>
+          <td class="dim">Solo paga ${(a.trimestres||[]).map(t=>t+'T').join(' y ')}${a.notaCuota?' · '+esc(a.notaCuota):''}</td></tr>`).join('')}
+        ${anuales.map(a=>`<tr><td>${esc(a.nombre)}</td><td class="num mono">${a.cuotaAnual?eur(a.cuotaAnual):'—'}</td>
+          <td class="dim">Cuota anual, no trimestral</td></tr>`).join('')}
+        ${sinCuota.map(a=>`<tr><td>${esc(a.nombre)}</td><td class="num mono">—</td>
+          <td class="dim">Sin cuota fijada en su ficha</td></tr>`).join('')}
+      </tbody></table></div>
+    </fieldset>`:''}
+   </form>`,
+   `<button class="btn" data-cerrar>Cancelar</button><button class="btn pri" data-emitir-cuotas>Emitir facturas</button>`, true);
+}
+
+/* ---------- factura suelta: cliente editable y varias líneas ---------- */
+const TIPOS_IVA = [0,4,10,21];
+let lineasFac = [];
+const lineaVacia = () => ({concepto:'', uds:'1', precio:'', tipoIva:'0'});
+
+function filaLineaHTML(l, i, total){
+  return `<tr>
+    <td><input data-linea="concepto" data-i="${i}" value="${esc(l.concepto)}" placeholder="Inscripción jornada técnica" required></td>
+    <td><input data-linea="uds" data-i="${i}" type="number" step="0.01" min="0" value="${esc(l.uds)}" class="mono num" style="min-width:66px"></td>
+    <td><input data-linea="precio" data-i="${i}" type="number" step="0.01" value="${esc(l.precio)}" class="mono num edit" style="min-width:96px" required></td>
+    <td><select data-linea="tipoIva" data-i="${i}" style="min-width:94px">${TIPOS_IVA.map(x=>`<option value="${x}"${(+l.tipoIva||0)===x?' selected':''}>${x?x+' %':'Exenta'}</option>`).join('')}</select></td>
+    <td class="num mono" data-imp="${i}">—</td>
+    <td class="acc">${total>1?`<button type="button" class="mini" data-del-linea="${i}" aria-label="Quitar línea ${i+1}">Quitar</button>`:''}</td>
+  </tr>`;
+}
+function leerLineas(){
+  const caja = document.getElementById('lineas-fac');
+  if(caja) caja.querySelectorAll('[data-linea]').forEach(el=>{
+    const i = +el.dataset.i;
+    if(lineasFac[i]) lineasFac[i][el.dataset.linea] = el.value;
+  });
+  return lineasFac;
+}
+function actualizarTotales(){
+  const L = leerLineas().map(normLinea), T = totalesDe(L);
+  L.forEach((l,i)=>{ const c = document.querySelector(`[data-imp="${i}"]`); if(c) c.textContent = l.base?num2(l.base):'—'; });
+  const el = document.getElementById('totales-fac');
+  if(el) el.innerHTML = `
+    <div><span>Base imponible</span><span class="mono">${eur(T.base)}</span></div>
+    ${T.porTipo.map(g=>`<div><span>IVA ${g.tipo} % sobre ${eur(g.base)}</span><span class="mono">${eur(g.iva)}</span></div>`).join('')}
+    <div><span>Total factura</span><span class="mono">${eur(T.total)}</span></div>`;
+}
+function pintarLineas(){
+  const caja = document.getElementById('lineas-fac');
+  if(!caja) return;
+  caja.innerHTML = lineasFac.map((l,i)=>filaLineaHTML(l,i,lineasFac.length)).join('');
+  actualizarTotales();
+}
+function panelFactura(id){
+  const f = id ? S.facturas.find(x=>x.id===id) : null;
+  if(id && !f) return;
+  lineasFac = f
+    ? lineasDe(f).map(l=>({concepto:l.concepto, uds:String(l.uds), precio:String(l.precio), tipoIva:String(l.tipoIva)}))
+    : [lineaVacia()];
+  const porNombre = (a,b)=>(a.nombre||'').localeCompare(b.nombre||'','es');
+  const asos = [...S.asociados].sort(porNombre), clis = [...S.clientes].sort(porNombre);
+  const v = c => esc(f ? (f[c] || '') : '');
+  const enFirme = !!f && ['En remesa','Cobrada','Devuelta'].includes(f.estado);
+  abrirPanel(f ? `Editar factura ${f.num}` : 'Nueva factura', `
+   <form id="form-fac-suelta" data-id="${f?esc(f.id):''}">
+    ${f ? `<div class="aviso-caja${enFirme?' err':''}">${enFirme
+        ? `<b>Cuidado:</b> esta factura está <b>${esc(estadoFactura(f).t.toLowerCase())}</b>. Lo que cambies aquí no toca la remesa ya generada ni el cobro apuntado, y una factura que ya está en manos del cliente se corrige con una rectificativa, no reescribiéndola.`
+        : `Mantiene su número <b class="mono">${esc(f.num)}</b>. Puedes cambiarle el cliente, las líneas, los conceptos y las fechas mientras siga pendiente de cobro.`}</div>` : ''}
+    <fieldset><legend>Cliente</legend>
+      <label class="campo"><span>Traer los datos de</span>
+        <select id="origen-fac" name="origen">
+          <option value="">${f?'Dejar los de la factura':'Escribirlos a mano'}</option>
+          ${asos.length?`<optgroup label="Asociados">${asos.map(a=>`<option value="aso:${esc(a.id)}">${esc(a.nombre)}</option>`).join('')}</optgroup>`:''}
+          ${clis.length?`<optgroup label="Clientes externos">${clis.map(c=>`<option value="cli:${esc(c.id)}">${esc(c.nombre)}</option>`).join('')}</optgroup>`:''}
+        </select></label>
+      <p class="ayuda">Elige a quién facturar para rellenar la ficha, o escribe los datos directamente si no está en la base de datos. Lo que quede escrito aquí es lo que sale impreso, aunque no coincida con la ficha: cambiarlo no toca la ficha del asociado.</p>
+      <label class="campo"><span>Razón social</span><input name="nombre" id="nombre-fac" value="${v('nombre')}" required></label>
+      <div class="rejilla">
+        <label class="campo"><span>CIF / NIF</span><input name="cif" id="cif-fac" class="mono" value="${v('cif')}" required></label>
+        <label class="campo"><span>Correo</span><input name="email" id="email-fac" type="email" value="${v('email')}"></label>
+      </div>
+      <label class="campo"><span>Vía</span><input name="via" id="via-fac" value="${v('via')}"></label>
+      <div class="rejilla">
+        <label class="campo"><span>C.P.</span><input name="cp" id="cp-fac" class="mono" value="${v('cp')}"></label>
+        <label class="campo"><span>Localidad</span><input name="loc" id="loc-fac" value="${v('loc')}"></label>
+        <label class="campo"><span>Provincia</span><input name="prov" id="prov-fac" value="${v('prov')}"></label>
+      </div>
+      <label class="check"><input type="checkbox" name="guardarCli" id="guardar-cli-fac">
+        <span>Guardar estos datos en Clientes externos para la próxima vez</span></label>
+    </fieldset>
+    <fieldset><legend>Documento</legend>
+      <div class="rejilla">
+        <label class="campo"><span>Fecha</span><input name="fecha" type="date" value="${f?esc(f.fecha):hoy()}" required></label>
+        <label class="campo"><span>Vencimiento</span><input name="vto" type="date" value="${f?esc(f.vto||f.fecha):hoy()}"></label>
+        <label class="campo"><span>Periodo (opcional)</span><input name="periodo" value="${v('periodo')}" placeholder="4T 2026, Ejercicio 2026…"></label>
+      </div>
+    </fieldset>
+    <fieldset><legend>Líneas</legend>
+      <div class="tabla-caja"><table class="t-lineas">
+        <thead><tr><th>Concepto</th><th class="num">Uds.</th><th class="num">Precio €</th><th>IVA</th><th class="num">Base</th><th></th></tr></thead>
+        <tbody id="lineas-fac"></tbody>
+      </table></div>
+      <p class="ayuda"><button type="button" class="mini" data-add-linea>+ Añadir otra línea</button> · escribe el concepto que quieras en cada línea; cada una lleva su propio tipo de IVA.</p>
+      <div class="totales-fac" id="totales-fac"></div>
+    </fieldset>
+    <fieldset><legend>Otros datos</legend>
+      <label class="campo"><span>Régimen de IVA (solo se imprime si ninguna línea lleva IVA)</span><input name="regimen" value="${f?esc(f.regimen||S.config.regimenCuota):esc(S.config.regimenCuota)}"></label>
+      <label class="campo"><span>Observaciones</span><textarea name="obs" rows="2">${v('obs')}</textarea></label>
+    </fieldset>
+   </form>`,
+   f ? `<button class="btn" data-cerrar>Cancelar</button><button class="btn pri" data-guardar-fac="${esc(f.id)}">Guardar cambios</button>`
+     : `<button class="btn" data-cerrar>Cancelar</button><button class="btn pri" data-crear-fac>Emitir factura</button>`, true);
+  pintarLineas();
+}
+
+/* ---------- ver factura ---------- */
+function panelVerFactura(id){
+  const f = S.facturas.find(x=>x.id===id); if(!f) return;
+  const c = S.config;
+  const e = estadoFactura(f);
+  const L = lineasDe(f), T = totalesDe(L);
+  const dom = [f.via, [f.loc, f.cp?`(${f.cp})`:''].filter(Boolean).join(' '), [f.prov,'España'].filter(Boolean).join(', ')].filter(Boolean);
+  abrirPanel('Factura '+f.num, `
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
+      <span class="pill ${e.k}">${e.t}</span>
+      ${asoDe(f)?'':`<span class="pill gris">Cliente no asociado</span>`}
+      ${f.remesaId?`<span class="dim">Remesa ${esc(f.remesaId)}</span>`:''}
+      ${f.fcobro?`<span class="dim">Cobrada el ${fechaES(f.fcobro)}${f.banco?' · '+esc(f.banco):''}</span>`:''}
+    </div>
+    <div class="hoja" id="hoja-fac">
+      ${logoActual()?`<img src="${logoActual()}" alt="${esc(S.config.nombreCorto||ENT)}" class="logo-hoja">`:''}
+      <h3>Factura</h3>
+      <div class="meta">
+        <b>Número #</b><span class="mono">${esc(f.num)}</span>
+        <b>Fecha</b><span class="mono">${fechaES(f.fecha)}</span>
+        <b>Vencimiento</b><span class="mono">${fechaES(f.vto)}</span>
+      </div>
+      <div class="partes">
+        <div>
+          <div><b>${esc(c.nombre)}</b></div>
+          <div>${esc(c.via)}</div>
+          <div>${esc(c.loc)} (${esc(c.cp)}), ${esc(c.prov)}, ${esc(c.pais)}</div>
+          <div class="mono">${esc(c.cif)}</div>
+          <div style="margin-top:8px">${esc(c.email)}</div>
+        </div>
+        <div>
+          <h4>Cliente</h4>
+          <div><b>${esc(f.nombre)}</b></div>
+          ${dom.map(l=>`<div>${esc(l)}</div>`).join('')}
+          <div class="mono">${esc(f.cif||'')}</div>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>CONCEPTO</th><th class="num">PRECIO</th><th class="num">UNIDADES</th><th class="num">IVA</th><th class="num">SUBTOTAL</th></tr></thead>
+        <tbody>${L.map(l=>`<tr><td>${esc(l.concepto)}</td><td class="num">${eur(l.precio)}</td>
+          <td class="num">${num2(l.uds)}</td><td class="num">${l.tipoIva?l.tipoIva+' %':'—'}</td><td class="num">${eur(l.base)}</td></tr>`).join('')}</tbody>
+      </table>
+      <div class="totales">
+        <div><span>BASE IMPONIBLE</span><span class="mono">${eur(T.base)}</span></div>
+        ${T.porTipo.map(g=>`<div><span>IVA ${g.tipo} % sobre ${eur(g.base)}</span><span class="mono">${eur(g.iva)}</span></div>`).join('')}
+        <div><span>TOTAL</span><span class="mono">${eur(T.total)}</span></div>
+      </div>
+      ${f.regimen && !T.iva ? `<p style="margin-top:14px;font-size:10.5px;color:#666">${esc(f.regimen)}</p>` : ''}
+      <div class="pie"><span class="mono">${esc(f.num)} - ${eur(T.total)} Vencimiento ${fechaES(f.vto)}</span><span>${L.length} línea${L.length>1?'s':''}</span></div>
+    </div>
+    ${f.obs?`<p class="dim" style="margin-top:12px"><b>Observaciones:</b> ${esc(f.obs)}</p>`:''}`,
+    `${puedeEscribir?`<button class="btn peligro" data-anular-fac="${esc(f.id)}">Anular</button>
+     <button class="btn" data-editar-fac="${esc(f.id)}">Editar</button>`:''}
+     <button class="btn" data-cerrar>Cerrar</button>
+     <button class="btn pri" data-pdf-fac="${esc(f.id)}">Descargar PDF</button>`, true);
+}
+
+/* ---------- cobro de una factura ---------- */
+function panelCobro(id){
+  const f = S.facturas.find(x=>x.id===id); if(!f) return;
+  abrirPanel('Cobro de '+f.num, `
+   <form id="form-cobro" data-id="${esc(id)}">
+    <p class="dim" style="margin-top:0">${esc(f.nombre)} · <b>${eur(f.total)}</b> · vence el ${fechaES(f.vto)}</p>
+    <div class="rejilla">
+      <label class="campo"><span>Estado</span><select name="estado">
+        ${['Pendiente','En remesa','Cobrada','Devuelta'].map(e=>`<option value="${e}"${(f.estado||'Pendiente')===e?' selected':''}>${e}</option>`).join('')}
+      </select></label>
+      <label class="campo"><span>Fecha de cobro</span><input name="fcobro" type="date" value="${esc(f.fcobro||'')}"></label>
+    </div>
+    <div class="rejilla">
+      <label class="campo"><span>Banco</span><select name="banco">
+        <option value="">—</option>
+        <option value="Santander"${f.banco==='Santander'?' selected':''}>Santander</option>
+        <option value="Sabadell"${f.banco==='Sabadell'?' selected':''}>Sabadell</option>
+      </select></label>
+      <label class="campo"><span>Forma de cobro</span><select name="formaCobro">
+        ${['','Recibo domiciliado','Transferencia','Confirming','Otros'].map(x=>`<option value="${x}"${f.formaCobro===x?' selected':''}>${x||'—'}</option>`).join('')}
+      </select></label>
+    </div>
+    <label class="campo"><span>Observaciones</span><textarea name="obs" rows="2">${esc(f.obs||'')}</textarea></label>
+   </form>`,
+   `<button class="btn" data-cerrar>Cancelar</button><button class="btn pri" data-guardar-cobro>Guardar</button>`);
+}
+
+/* ---------- nueva remesa ---------- */
+function panelNuevaRemesa(){
+  const c = S.config;
+  const pend = S.facturas.filter(f=>!f.estado || f.estado==='Pendiente' || f.estado==='Devuelta');
+  const dentro = [], fuera = [];
+  for(const f of pend){
+    const a = asoDe(f);
+    if(!a) fuera.push({f, por: f.tipoCliente==='externo' ? 'Cliente externo: se cobra fuera de la remesa' : 'No hay ficha de asociado con ese CIF'});
+    else if(a.activo===false) fuera.push({f, por:'Asociado de baja'});
+    else if(a.forma!=='Recibo domiciliado') fuera.push({f, por:'Cobra por transferencia'});
+    else if(!ibanValido(a.iban)) fuera.push({f, por:a.iban?'IBAN no válido':'Sin IBAN en la ficha'});
+    else dentro.push({f, a});
+  }
+  const suma = r2(dentro.reduce((s,x)=>s+(+x.f.total||0),0));
+  const avisoId = !c.idAcreedor || c.idAcreedor !== idAcreedor(c.cif,c.sufijo);
+  const sinFirma = dentro.filter(({a})=>!a.fechaMandato).map(({a})=>a.nombre);
+  abrirPanel('Nueva remesa de adeudos', `
+   ${!ibanValido(c.ibanCargo)?`<div class="aviso-caja err"><b>Falta la cuenta de abono.</b> Ponla en Ajustes antes de generar el fichero.</div>`:''}
+   <div class="aviso-caja"><b>Antes de enviarla al banco.</b> Comprueba en Ajustes que el identificador del acreedor
+     <span class="mono">${esc(c.idAcreedor||'—')}</span> es el que ${esc(S.config.nombreCorto||ENT)} tiene dado de alta${avisoId?' (ahora mismo no coincide con el calculado a partir del CIF)':''}.</div>
+   ${sinFirma.length?`<div class="aviso-caja"><b>Mandatos sin fecha de firma.</b> ${sinFirma.length} asociado${sinFirma.length>1?'s':''} no tiene${sinFirma.length>1?'n':''} fecha de firma del mandato en su ficha: el fichero llevará la fecha de cargo en su lugar. Compl&eacute;tala en la ficha si el banco te la reclama. ${sinFirma.slice(0,6).map(n=>esc(n)).join(' · ')}${sinFirma.length>6?` y ${sinFirma.length-6} más`:''}.</div>`:''}
+   <form id="form-remesa">
+    <div class="rejilla">
+      <label class="campo"><span>Fecha de cargo</span><input name="fechaCargo" type="date" value="${hoy()}" required></label>
+      <label class="campo"><span>Cuenta de abono</span><input value="${esc(ibanBonito(c.ibanCargo))}" class="mono" readonly></label>
+    </div>
+    <fieldset><legend>Recibos a incluir · ${dentro.length}</legend>
+      ${dentro.length?`<div class="lista-sel">
+        ${dentro.map(({f,a})=>`<label class="check"><input type="checkbox" name="sel" value="${esc(f.id)}" checked>
+          <span style="flex:1">${esc(f.nombre)} <span class="dim mono">${esc(f.num)}</span></span>
+          <span class="mono num" style="min-width:86px">${eur(f.total)}</span>
+          <span class="pill gris">${esc(a.secuencia||'RCUR')}</span></label>`).join('')}
+      </div>
+      <p class="ayuda">${dentro.length} adeudos por <b>${eur(suma)}</b>.</p>`
+      :`<p class="vacio" style="padding:18px">No hay recibos domiciliados pendientes.</p>`}
+    </fieldset>
+    ${fuera.length?`<fieldset><legend>Quedan fuera · ${fuera.length}</legend>
+      <div class="tabla-caja"><table><thead><tr><th>Nº</th><th>Cliente</th><th class="num">Importe</th><th>Motivo</th></tr></thead>
+      <tbody>${fuera.map(({f,por})=>`<tr><td class="mono">${esc(f.num)}</td><td>${esc(f.nombre)}</td>
+        <td class="num mono">${eur(f.total)}</td><td class="dim">${esc(por)}</td></tr>`).join('')}</tbody></table></div>
+    </fieldset>`:''}
+   </form>`,
+   `<button class="btn" data-cerrar>Cancelar</button>
+    <button class="btn pri" data-crear-remesa ${dentro.length&&ibanValido(c.ibanCargo)?'':'disabled'}>Generar remesa</button>`, true);
+}
+
+/* ---------- ver remesa ---------- */
+function panelVerRemesa(id){
+  const r = S.remesas.find(x=>x.id===id); if(!r) return;
+  const lineas = r.lineas||[];
+  abrirPanel(r.nombre||('Remesa '+id), `
+    <dl class="tiles">
+      <div class="tile"><dt>Fecha de cargo</dt><dd style="font-size:15px">${fechaES(r.fechaCargo)}</dd></div>
+      <div class="tile"><dt>Operaciones</dt><dd>${lineas.length}</dd></div>
+      <div class="tile acento"><dt>Importe</dt><dd>${eur(r.importe)}</dd></div>
+    </dl>
+    <p class="dim">Cuenta de abono <span class="mono">${esc(ibanBonito(r.ibanCargo||''))}</span> · acreedor <span class="mono">${esc(r.idAcreedor||'')}</span></p>
+    <div class="tabla-caja"><table>
+      <thead><tr><th>Nº fra.</th><th>Deudor</th><th>IBAN</th><th>Mandato</th><th>Sec.</th><th class="num">Importe</th></tr></thead>
+      <tbody>${lineas.map(l=>`<tr><td class="mono">${esc(l.num)}</td><td>${esc(l.nombre)}</td>
+        <td class="mono dim">${esc(ibanBonito(l.iban))}</td><td class="mono dim">${esc(l.mandato)}</td>
+        <td><span class="pill gris">${esc(l.secuencia)}</span></td><td class="num mono">${eur(l.importe)}</td></tr>`).join('')}</tbody>
+      <tfoot><tr><td colspan="5">Total remesa</td><td class="num mono">${eur(r.importe)}</td></tr></tfoot>
+    </table></div>`,
+    `<button class="btn" data-cerrar>Cerrar</button>
+     <button class="btn" data-csv-remesa="${esc(id)}">Hoja de control CSV</button>
+     <button class="btn pri" data-xml-remesa="${esc(id)}">Descargar XML (.zip)</button>`, true);
+}
+
+/* ---------- devolución ---------- */
+function panelDevolucion(id){
+  const d = id ? S.devoluciones.find(x=>x.id===id) : null;
+  const v = d || {fecha:hoy(),fechaValor:'',banco:'Sabadell',numFactura:'',nombre:'',
+                  ibanDev:'',importe:'',gastos:'',estado:'Pendiente',obs:''};
+  const cobrables = S.facturas.filter(f=>f.estado==='En remesa'||f.estado==='Cobrada'||f.estado==='Devuelta')
+    .sort((a,b)=>(b.num||'').localeCompare(a.num||''));
+  abrirPanel(d?'Devolución':'Registrar devolución', `
+   <form id="form-devol" data-id="${esc(id||'')}">
+    <div class="rejilla">
+      <label class="campo"><span>Fecha de devolución</span><input name="fecha" type="date" value="${esc(v.fecha)}" required></label>
+      <label class="campo"><span>Fecha valor</span><input name="fechaValor" type="date" value="${esc(v.fechaValor)}"></label>
+      <label class="campo"><span>Banco</span><select name="banco">
+        <option value="Sabadell"${v.banco==='Sabadell'?' selected':''}>Sabadell</option>
+        <option value="Santander"${v.banco==='Santander'?' selected':''}>Santander</option>
+      </select></label>
+    </div>
+    <fieldset><legend>Quién es el deudor</legend>
+      <label class="campo"><span>IBAN del recibo devuelto</span><input name="ibanDev" id="iban-dev" class="mono edit" value="${esc(ibanBonito(v.ibanDev))}" placeholder="El que trae el detalle del banco"></label>
+      <p class="ayuda" id="dev-msg">Pega aquí el IBAN que da el banco en el detalle de la devolución y te digo de quién es y qué factura suya cuadra.</p>
+      <label class="campo"><span>Deudor</span><input name="nombre" id="deudor-dev" value="${esc(v.nombre)}" placeholder="Sin identificar todavía"></label>
+      <label class="campo"><span>Factura devuelta</span><select name="numFactura" id="fra-dev">
+        <option value="">Sin identificar todavía</option>
+        ${cobrables.map(f=>`<option value="${esc(f.num)}"${v.numFactura===f.num?' selected':''}>${esc(f.num)} · ${esc(f.nombre)} · ${eur(f.total)}</option>`).join('')}
+      </select></label>
+    </fieldset>
+    <div class="rejilla">
+      <label class="campo"><span>Importe del recibo €</span><input name="importe" id="importe-dev" type="number" step="0.01" class="mono edit" value="${esc(v.importe)}" required></label>
+      <label class="campo"><span>Gastos €</span><input name="gastos" type="number" step="0.01" class="mono edit" value="${esc(v.gastos)}"></label>
+      <label class="campo"><span>Estado</span><select name="estado">
+        ${['Pendiente','Reclamada','Recuperada','Incobrable'].map(e=>`<option value="${e}"${v.estado===e?' selected':''}>${e}</option>`).join('')}
+      </select></label>
+    </div>
+    <label class="campo"><span>Observaciones</span><textarea name="obs" rows="2">${esc(v.obs)}</textarea></label>
+   </form>`,
+   `${d?`<button class="btn peligro" data-borrar-devol="${esc(id)}">Eliminar</button>`:''}
+    <button class="btn" data-cerrar>Cancelar</button>
+    <button class="btn pri" data-guardar-devol>Guardar</button>`);
+}
+
+/* ═══════════════ generación de ficheros ═══════════════ */
+function construirXmlAdeudos(r){
+  const c = S.config;
+  const lineas = r.lineas||[];
+  const grupos = {};
+  for(const l of lineas){ (grupos[l.secuencia||'RCUR'] = grupos[l.secuencia||'RCUR'] || []).push(l); }
+  const creado = new Date().toISOString().replace(/\.\d+Z$/,'Z');
+  const msgId = sepaTxt(`ANFALUM-${r.fechaCargo.replace(/-/g,'')}-${String(Date.now()).slice(-6)}`,35);
+  const totalTx = lineas.length;
+  const ctrl = r2(lineas.reduce((s,l)=>s+(+l.importe||0),0)).toFixed(2);
+  const dirEmisor = `<PstlAdr><Ctry>ES</Ctry><AdrLine>${xesc(sepaTxt(c.via,70))}</AdrLine><AdrLine>${xesc(sepaTxt(`${c.cp} ${c.loc} ${c.prov}`,70))}</AdrLine></PstlAdr>`;
+
+  const bloques = Object.entries(grupos).map(([seq,ls],i)=>{
+    const sum = r2(ls.reduce((s,l)=>s+(+l.importe||0),0)).toFixed(2);
+    const tx = ls.map(l=>`
+      <DrctDbtTxInf>
+        <PmtId><EndToEndId>${xesc(sepaTxt(l.num+'-'+(l.cif||''),35))}</EndToEndId></PmtId>
+        <InstdAmt Ccy="EUR">${(+l.importe).toFixed(2)}</InstdAmt>
+        <DrctDbtTx><MndtRltdInf><MndtId>${xesc(sepaTxt(l.mandato||l.cif,35))}</MndtId><DtOfSgntr>${xesc(l.fechaMandato||r.fechaCargo)}</DtOfSgntr><AmdmntInd>false</AmdmntInd></MndtRltdInf></DrctDbtTx>
+        <DbtrAgt><FinInstnId><Othr><Id>NOTPROVIDED</Id></Othr></FinInstnId></DbtrAgt>
+        <Dbtr><Nm>${xesc(sepaTxt(l.nombre,70))}</Nm><PstlAdr><Ctry>ES</Ctry><AdrLine>${xesc(sepaTxt(l.dir||l.nombre,70))}</AdrLine></PstlAdr>
+          <Id><OrgId><Othr><Id>${xesc(sepaTxt(l.cif,35))}</Id></Othr></OrgId></Id></Dbtr>
+        <DbtrAcct><Id><IBAN>${xesc(ibanLimpio(l.iban))}</IBAN></Id></DbtrAcct>
+        <RmtInf><Ustrd>${xesc(sepaTxt(l.concepto+' '+l.num,140))}</Ustrd></RmtInf>
+      </DrctDbtTxInf>`).join('');
+    return `
+    <PmtInf>
+      <PmtInfId>${xesc(msgId+'-'+(i+1))}</PmtInfId>
+      <PmtMtd>DD</PmtMtd>
+      <NbOfTxs>${ls.length}</NbOfTxs>
+      <CtrlSum>${sum}</CtrlSum>
+      <PmtTpInf><SvcLvl><Cd>SEPA</Cd></SvcLvl><LclInstrm><Cd>CORE</Cd></LclInstrm><SeqTp>${xesc(seq)}</SeqTp></PmtTpInf>
+      <ReqdColltnDt>${xesc(r.fechaCargo)}</ReqdColltnDt>
+      <Cdtr><Nm>${xesc(sepaTxt(c.nombre,70))}</Nm>${dirEmisor}</Cdtr>
+      <CdtrAcct><Id><IBAN>${xesc(ibanLimpio(r.ibanCargo))}</IBAN></Id></CdtrAcct>
+      <CdtrAgt><FinInstnId><BIC>${xesc(c.bic||'NOTPROVIDED')}</BIC></FinInstnId></CdtrAgt>
+      <ChrgBr>SLEV</ChrgBr>
+      <CdtrSchmeId><Id><PrvtId><Othr><Id>${xesc(r.idAcreedor)}</Id><SchmeNm><Prtry>SEPA</Prtry></SchmeNm></Othr></PrvtId></Id></CdtrSchmeId>${tx}
+    </PmtInf>`;
+  }).join('');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.001.02" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <CstmrDrctDbtInitn>
+    <GrpHdr>
+      <MsgId>${xesc(msgId)}</MsgId>
+      <CreDtTm>${xesc(creado)}</CreDtTm>
+      <NbOfTxs>${totalTx}</NbOfTxs>
+      <CtrlSum>${ctrl}</CtrlSum>
+      <InitgPty><Nm>${xesc(sepaTxt(c.nombre,70))}</Nm>
+        <Id><OrgId><Othr><Id>${xesc(r.idAcreedor)}</Id></Othr></OrgId></Id></InitgPty>
+    </GrpHdr>${bloques}
+  </CstmrDrctDbtInitn>
+</Document>`;
+}
+function csvRemesa(r){
+  const cab = ['Nº FRA.','DEUDOR','CIF','IBAN','MANDATO','SECUENCIA','CONCEPTO','IMPORTE'];
+  const filas = (r.lineas||[]).map(l=>[l.num,l.nombre,l.cif,ibanBonito(l.iban),l.mandato,l.secuencia,l.concepto,num2(l.importe)]);
+  filas.push(['','','','','','','TOTAL', num2(r.importe)]);
+  const q = v => `"${String(v??'').replace(/"/g,'""')}"`;
+  return '﻿' + [cab,...filas].map(f=>f.map(q).join(';')).join('\r\n');
+}
+function csvTabla(cab, filas){
+  const q = v => `"${String(v??'').replace(/"/g,'""')}"`;
+  return '﻿' + [cab,...filas].map(f=>f.map(q).join(';')).join('\r\n');
+}
+async function descargar(nombre, datos){
+  try{
+    const blob = datos instanceof Blob ? datos
+      : new Blob([datos], {type:/\.csv$/i.test(nombre) ? 'text/csv;charset=utf-8' : 'application/octet-stream'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = nombre; a.style.display = 'none';
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 2000);
+    brindis('Descargado: '+nombre);
+  }catch(e){ brindis('No se ha podido descargar el fichero.'); }
+}
+function pdfFactura(f){
+  const J = window.jspdf && window.jspdf.jsPDF;
+  if(!J){ brindis('No se ha podido cargar el generador de PDF.'); return null; }
+  const c = S.config, doc = new J({unit:'mm', format:'a4'});
+  const M = 20, W = 210, der = W - M;
+  const gris = () => doc.setTextColor(102,102,102), negro = () => doc.setTextColor(26,26,26);
+  const lg = logoActual();
+  if(lg){ try{ doc.addImage(lg, /jpe?g/i.test(lg.slice(0,30))?'JPEG':'PNG', der - 60, 8.7, 60, 13.3); }catch(e){} }
+  let y = 26;
+  doc.setFont('helvetica','bold'); negro(); doc.setFontSize(20);
+  doc.text('Factura', M, y); y += 11;
+  doc.setFontSize(9);
+  [['Número #', f.num],['Fecha', fechaES(f.fecha)],['Vencimiento', fechaES(f.vto)]].forEach(([k,v])=>{
+    doc.setFont('helvetica','bold'); negro(); doc.text(k, M, y);
+    doc.setFont('helvetica','normal'); doc.text(String(v), M+34, y); y += 5;
+  });
+  y += 10;
+  const yBloque = y;
+  doc.setFontSize(9.5); negro();
+  const izq = [c.nombre, c.via, `${c.loc} (${c.cp}), ${c.prov}, ${c.pais}`, c.cif, '', c.email];
+  let yi = yBloque;
+  izq.forEach(l=>{ doc.text(doc.splitTextToSize(String(l||''), 78), M, yi); yi += (String(l||'').length>44?8:4.8); });
+  const xC = M + 88;
+  gris(); doc.setFontSize(8.5); doc.text('Cliente', xC, yBloque);
+  negro(); doc.setFontSize(9.5);
+  let yd = yBloque + 5.5;
+  const dcl = [f.nombre, f.via, [f.loc, f.cp?`(${f.cp})`:''].filter(Boolean).join(' ') + (f.prov?`, ${f.prov}, España`:''), f.cif];
+  dcl.filter(Boolean).forEach(l=>{ const w = doc.splitTextToSize(String(l), 72); doc.text(w, xC, yd); yd += w.length*4.6; });
+  y = Math.max(yi, yd) + 12;
+
+  const L = lineasDe(f), T = totalesDe(L);
+  let pag = 1;
+  const cabeceraTabla = () => {
+    doc.setFont('helvetica','normal'); doc.setFontSize(8); gris();
+    doc.text('CONCEPTO', M, y); doc.text('PRECIO', M+86, y, {align:'right'});
+    doc.text('UNIDADES', M+112, y, {align:'right'}); doc.text('IVA', M+132, y, {align:'right'});
+    doc.text('SUBTOTAL', der, y, {align:'right'});
+    y += 2; doc.setDrawColor(153); doc.setLineWidth(.2); doc.line(M, y, der, y); y += 6;
+    negro(); doc.setFontSize(9.5);
+  };
+  const otraPagina = conCabecera => { doc.addPage(); pag++; y = 26; if(conCabecera) cabeceraTabla(); else { negro(); doc.setFontSize(9.5); } };
+  cabeceraTabla();
+  for(const l of L){
+    const txt = doc.splitTextToSize(String(l.concepto||''), 76);
+    const alto = Math.max(5, txt.length*4.6);
+    if(y + alto > 258) otraPagina(true);
+    doc.text(txt, M, y);
+    doc.text(eur(l.precio), M+86, y, {align:'right'});
+    doc.text(num2(l.uds), M+112, y, {align:'right'});
+    doc.text(l.tipoIva?l.tipoIva+' %':'—', M+132, y, {align:'right'});
+    doc.text(eur(l.base), der, y, {align:'right'});
+    y += alto; doc.setDrawColor(230); doc.line(M, y, der, y); y += 6;
+  }
+  y += 6;
+
+  const xt = M + 96;
+  const fila = (k,v,fuerte)=>{ doc.setFont('helvetica', fuerte?'bold':'normal');
+    doc.text(k, xt, y); doc.text(v, der, y, {align:'right'});
+    y += 3; doc.setDrawColor(fuerte?153:230); doc.line(xt, y, der, y); y += 6; };
+  if(y + 9*(2+T.porTipo.length) > 262) otraPagina(false);
+  doc.setFontSize(9.5); negro();
+  fila('BASE IMPONIBLE', eur(T.base), false);
+  T.porTipo.forEach(g=>fila(`IVA ${g.tipo} % sobre ${eur(g.base)}`, eur(g.iva), false));
+  fila('TOTAL', eur(T.total), true);
+  doc.setFont('helvetica','normal');
+  if(f.regimen && !T.iva){ gris(); doc.setFontSize(8); doc.text(String(f.regimen), M, y+4); }
+
+  for(let p=1; p<=pag; p++){
+    doc.setPage(p);
+    doc.setFont('helvetica','normal'); doc.setFontSize(8); gris(); doc.setDrawColor(221);
+    doc.line(M, 276, der, 276);
+    doc.text(`${f.num} - ${eur(T.total)} Vencimiento ${fechaES(f.vto)}`, M, 281);
+    doc.text(`Pág. ${p} de ${pag}`, der, 281, {align:'right'});
+  }
+  return doc.output('blob');
+}
+
+/* ═══════════════ acciones ═══════════════ */
+function datosForm(form){
+  const d = {};
+  for(const el of form.elements){ if(el.name && el.type!=='checkbox') d[el.name] = el.value.trim(); }
+  return d;
+}
+async function crearFacturas(items){
+  let n = siguienteNumero();
+  const creadas = [];
+  for(const it of items){ creadas.push({...it, num: numFactura(n)}); n++; }
+  for(const f of creadas) await guardar('facturas/'+clave(f.num), f);
+  await guardar(rutaConfig(ENT), {...S.config, siguiente:n});
+  return creadas;
+}
+function facturaDesde(a, base, opts){
+  const b = r2(base), tipo = +(opts.tipoIva||0), iva = r2(b*tipo/100), uds = opts.uds||1;
+  return {
+    num:'', fecha:opts.fecha, vto:opts.vto||opts.fecha,
+    cif:a.cif, nombre:a.nombre, via:a.via||'', cp:a.cp||'', loc:a.loc||'', prov:a.prov||'', email:a.email||'',
+    tipoCliente:'asociado',
+    lineas:[{concepto:opts.concepto, uds, precio:r2(b/uds), tipoIva:tipo}],
+    concepto:opts.concepto, periodo:opts.periodo||'',
+    precio:r2(b/uds), uds,
+    base:b, tipoIva:tipo, iva, total:r2(b+iva),
+    regimen:opts.regimen||'', estado:'Pendiente', fcobro:'', banco:'', formaCobro:'',
+    remesaId:'', obs:opts.obs||'', creada: new Date().toISOString()
+  };
+}
+/* Factura con cliente escrito a mano y una o varias líneas.
+   Se guardan también los campos agregados de siempre (concepto, base, tipoIva, iva, total)
+   para que remesas, CSV y devoluciones sigan funcionando igual. */
+function facturaMulti(cl, lineas, opts){
+  const L = lineas.map(normLinea), T = totalesDe(L), uno = L.length===1 ? L[0] : null;
+  return {
+    num:'', fecha:opts.fecha, vto:opts.vto||opts.fecha,
+    cif:cl.cif||'', nombre:cl.nombre||'', via:cl.via||'', cp:cl.cp||'', loc:cl.loc||'', prov:cl.prov||'', email:cl.email||'',
+    tipoCliente:opts.tipoCliente||'externo',
+    lineas: L.map(l=>({concepto:l.concepto, uds:l.uds, precio:l.precio, tipoIva:l.tipoIva})),
+    concepto: uno ? uno.concepto : L.map(l=>l.concepto).join(' · '),
+    periodo: opts.periodo||'',
+    precio: uno ? uno.precio : T.base, uds: uno ? uno.uds : 1,
+    base: T.base,
+    tipoIva: uno ? uno.tipoIva
+           : (T.porTipo.length===1 && L.every(l=>l.tipoIva===T.porTipo[0].tipo) ? T.porTipo[0].tipo : 0),
+    iva: T.iva, total: T.total,
+    regimen: opts.regimen||'', estado:'Pendiente', fcobro:'', banco:'', formaCobro:'',
+    remesaId:'', obs:opts.obs||'', creada: new Date().toISOString()
+  };
+}
+
+document.addEventListener('click', async ev => {
+  const t = ev.target.closest('[data-salir],[data-ir],[data-acc],[data-cerrar],[data-velo],[data-quitar-logo],[data-nueva-ent],[data-editar-aso],[data-guardar-aso],[data-borrar-aso],[data-emitir-cuotas],[data-add-linea],[data-del-linea],[data-editar-cli],[data-guardar-cli],[data-borrar-cli],[data-crear-fac],[data-editar-fac],[data-guardar-fac],[data-ver-fac],[data-cobro-fac],[data-guardar-cobro],[data-anular-fac],[data-pdf-fac],[data-crear-remesa],[data-ver-remesa],[data-xml-remesa],[data-csv-remesa],[data-editar-devol],[data-guardar-devol],[data-borrar-devol]');
+  if(!t) return;
+  if(t.hasAttribute('data-velo') && ev.target !== t) return;
+
+  if(t.hasAttribute('data-salir')){ if(confirm('¿Cerrar la sesión?')) await salir(); return; }
+  if(t.dataset.ir){ vista = t.dataset.ir; pintar(); return; }
+  if(t.hasAttribute('data-cerrar') || t.hasAttribute('data-velo')){ cerrarPanel(); return; }
+
+  const acc = t.dataset.acc;
+  if(acc==='nuevo-aso') return panelAsociado(null);
+  if(acc==='nuevo-cli') return panelCliente(null);
+  if(acc==='nueva-fac') return panelFactura(null);
+  if(acc==='emitir-cuotas') return panelCuotas();
+  if(acc==='nueva-remesa') return panelNuevaRemesa();
+  if(acc==='nueva-devol') return panelDevolucion(null);
+  if(acc==='exportar-aso'){
+    const filas = [...S.asociados].sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||'','es'))
+      .map(a=>[a.ref,a.nombre,a.cif,a.email||'',a.via,a.cp,a.loc,a.prov,a.forma,ibanBonito(a.iban),
+               ibanValido(a.iban)?'Sí':'No',a.mandato||'',
+               a.periodicidad==='Anual'?'Anual':'Trimestral',
+               num2(a.periodicidad==='Anual'?a.cuotaAnual:a.cuota),
+               a.periodicidad==='Anual'?'':(a.trimestres||[1,2,3,4]).map(t=>t+'T').join(' '),
+               a.notaCuota||'', a.activo===false?'Baja':'Alta']);
+    return descargar(`Asociados ${S.config.nombreCorto||ENT}.csv`,
+      csvTabla(['REF.','RAZÓN SOCIAL','CIF','CORREO','DOMICILIO','C.P.','LOCALIDAD','PROVINCIA','FORMA DE PAGO','IBAN','IBAN OK','MANDATO','TIPO DE CUOTA','IMPORTE CUOTA','TRIMESTRES','NOTA','SITUACIÓN'], filas));
+  }
+  if(acc==='zip-fac'){
+    const lista = facturasFiltradas();
+    if(!lista.length){ brindis('No hay facturas en el filtro actual.'); return; }
+    if(lista.length>60 && !confirm(`Vas a generar ${lista.length} PDF. Puede tardar un minuto. ¿Sigo?`)) return;
+    t.disabled = true; const antes = t.textContent;
+    try{
+      const archivos = [];
+      for(let i=0;i<lista.length;i++){
+        t.textContent = `Generando ${i+1} de ${lista.length}…`;
+        const f = lista[i];
+        const blob = pdfFactura(f);
+        if(!blob){ brindis('No se ha podido cargar el generador de PDF.'); break; }
+        archivos.push({nombre:`${f.num} ${sepaTxt(f.nombre,40)}.pdf`,
+                       datos:new Uint8Array(await blob.arrayBuffer())});
+        if(i%5===4) await new Promise(r=>setTimeout(r,0));
+      }
+      if(archivos.length){
+        const per = [...new Set(lista.map(f=>f.periodo).filter(Boolean))];
+        const corto = S.config.nombreCorto||ENT;
+        const nom = per.length===1 ? `Facturas ${corto} ${sepaTxt(per[0],30)}.zip` : `Facturas ${corto}.zip`;
+        archivos.push({nombre:'listado.csv', datos:new TextEncoder().encode(csvEnvio(lista))});
+        await descargar(nom, zip(archivos));
+      }
+    } finally { t.disabled = false; t.textContent = antes; }
+    return;
+  }
+  if(acc==='exportar-fac'){
+    const filas = facturasOrden().map(f=>{
+      const L = lineasDe(f), T = totalesDe(L);
+      return [f.num,fechaES(f.fecha),fechaES(f.vto),f.nombre,f.cif,asoDe(f)?'Asociado':'No asociado',
+        L.map(l=>l.concepto).join(' · '), L.length,
+        num2(T.base), T.porTipo.length?T.porTipo.map(g=>g.tipo+' %').join(' + '):'0',
+        num2(T.iva),num2(T.total),f.estado||'Pendiente',fechaES(f.fcobro),f.banco||'',f.remesaId||''];
+    });
+    return descargar(`Facturas emitidas ${S.config.nombreCorto||ENT}.csv`,
+      csvTabla(['Nº FRA.','F. FRA.','F. VTO.','CLIENTE','CIF','TIPO','CONCEPTO','Nº LÍNEAS','BASE','% IVA','IVA','TOTAL','ESTADO','F. COBRO','BANCO','REMESA'], filas));
+  }
+
+  if(t.hasAttribute('data-quitar-logo')){
+    if(!confirm('¿Quitar el logo de '+ENT+'? Las facturas saldrán sin él.')) return;
+    if(await guardar(rutaConfig(ENT), {...S.config, logo:''})) brindis('Logo quitado.');
+    return;
+  }
+  if(t.hasAttribute('data-nueva-ent')){
+    const bruto = prompt('Nombre corto de la asociación (sin espacios ni acentos, p. ej. ASEFACOL):');
+    if(bruto===null) return;
+    const nom = String(bruto).normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .toUpperCase().replace(/[^A-Z0-9-]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(0,24);
+    if(!nom){ brindis('Ese nombre no vale: usa letras y números.'); return; }
+    if(entidades().includes(nom)){ brindis(nom+' ya está dada de alta: elígela en el desplegable.'); return; }
+    const ok = await guardar('config/'+nom, {...CONFIG_BASE, nombre:nom, nombreCorto:nom,
+      serie:nom.slice(0,1)+'26', siguiente:1});
+    if(ok){ ENT = nom; refrescar(); vista='ajustes'; pintar(); brindis(nom+' dada de alta. Rellena sus datos aquí.'); }
+    return;
+  }
+  if(t.dataset.editarAso) return panelAsociado(t.dataset.editarAso);
+  if(t.dataset.editarCli) return panelCliente(t.dataset.editarCli);
+  if(t.hasAttribute('data-add-linea')){ leerLineas(); lineasFac.push(lineaVacia()); pintarLineas(); return; }
+  if(t.dataset.delLinea){ leerLineas(); lineasFac.splice(+t.dataset.delLinea, 1);
+    if(!lineasFac.length) lineasFac = [lineaVacia()]; pintarLineas(); return; }
+  if(t.dataset.editarFac) return panelFactura(t.dataset.editarFac);
+  if(t.dataset.verFac) return panelVerFactura(t.dataset.verFac);
+  if(t.dataset.cobroFac) return panelCobro(t.dataset.cobroFac);
+  if(t.dataset.verRemesa) return panelVerRemesa(t.dataset.verRemesa);
+  if(t.dataset.editarDevol) return panelDevolucion(t.dataset.editarDevol);
+
+  /* --- guardar asociado --- */
+  if(t.hasAttribute('data-guardar-aso')){
+    const form = document.getElementById('form-aso');
+    if(!form.reportValidity()) return;
+    const d = datosForm(form);
+    const id = form.dataset.id || clave(d.cif);
+    const prev = S.asociados.find(x=>x.id===id) || {};
+    const ok = await guardar('asociados/'+id, {...prev,
+      ref:d.ref, nombre:d.nombre, cif:d.cif, email:d.email, via:d.via, cp:d.cp, loc:d.loc, prov:d.prov, pais:'España',
+      iban:ibanLimpio(d.iban), forma:d.forma, cuota:+d.cuota||0, cuotaAnual:+d.cuotaAnual||0,
+      periodicidad:d.periodicidad||'Trimestral', notaCuota:d.notaCuota||'',
+      trimestres:[...form.querySelectorAll('input[name="trim"]:checked')].map(i=>+i.value),
+      mandato:d.mandato||d.cif, fechaMandato:d.fechaMandato, secuencia:d.secuencia,
+      activo:d.activo==='1', obs:d.obs});
+    if(ok){ cerrarPanel(); brindis('Ficha guardada.'); }
+    return;
+  }
+  /* --- guardar cliente externo --- */
+  if(t.hasAttribute('data-guardar-cli')){
+    const form = document.getElementById('form-cli');
+    if(!form.reportValidity()) return;
+    const d = datosForm(form);
+    if(S.asociados.some(a=>a.cif===d.cif)){ brindis('Ese CIF ya es de un asociado: usa su ficha de asociado.'); return; }
+    const id = form.dataset.id || clave(d.cif);
+    const prev = S.clientes.find(x=>x.id===id) || {};
+    const ok = await guardar('clientes/'+id, {...prev, nombre:d.nombre, cif:d.cif, email:d.email,
+      via:d.via, cp:d.cp, loc:d.loc, prov:d.prov, pais:d.pais||'España', obs:d.obs});
+    if(ok){ cerrarPanel(); brindis('Cliente guardado.'); }
+    return;
+  }
+  if(t.dataset.borrarCli){
+    if(!confirm('¿Eliminar esta ficha de cliente? Las facturas ya emitidas se conservan.')) return;
+    if(await borrar('clientes/'+t.dataset.borrarCli)){ cerrarPanel(); brindis('Cliente eliminado.'); }
+    return;
+  }
+
+  if(t.dataset.borrarAso){
+    if(!confirm('¿Eliminar la ficha de este asociado? Las facturas ya emitidas se conservan.')) return;
+    if(await borrar('asociados/'+t.dataset.borrarAso)){ cerrarPanel(); brindis('Ficha eliminada.'); }
+    return;
+  }
+
+  /* --- emitir cuotas --- */
+  if(t.hasAttribute('data-emitir-cuotas')){
+    const form = document.getElementById('form-cuotas');
+    if(!form.reportValidity()) return;
+    const d = datosForm(form);
+    const sel = [...form.querySelectorAll('input[name="sel"]:checked')].map(i=>i.value);
+    if(!sel.length){ brindis('No has marcado ningún asociado.'); return; }
+    t.disabled = true; t.textContent = 'Emitiendo…';
+    const modo = form.dataset.modo || 'Trimestral';
+    const periodo = modo==='Anual' ? `Ejercicio ${d.fecha.slice(0,4)}` : `${d.trim}T ${d.fecha.slice(0,4)}`;
+    const items = sel.map(id=>{
+      const a = S.asociados.find(x=>x.id===id);
+      return facturaDesde(a, cuotaDe(a,modo), {fecha:d.fecha, vto:d.vto, concepto:d.concepto,
+        periodo, tipoIva:0, regimen:d.regimen, uds:1, obs:a.notaCuota||''});
+    });
+    const creadas = await crearFacturas(items);
+    cerrarPanel(); vista='facturas'; pintar();
+    brindis(`${creadas.length} facturas emitidas: ${creadas[0].num} a ${creadas[creadas.length-1].num}.`);
+    return;
+  }
+
+  /* --- factura suelta --- */
+  if(t.hasAttribute('data-crear-fac')){
+    const form = document.getElementById('form-fac-suelta');
+    if(!form.reportValidity()) return;
+    const d = datosForm(form);
+    const L = leerLineas().map(normLinea).filter(l=>l.concepto || l.base);
+    if(!L.length){ brindis('Añade al menos una línea con concepto e importe.'); return; }
+    if(L.some(l=>!l.concepto)){ brindis('Hay alguna línea sin concepto.'); return; }
+    const T = totalesDe(L);
+    if(!T.total){ brindis('El total de la factura sale a cero: revisa los precios.'); return; }
+    const esAso = S.asociados.some(a=>a.cif===d.cif);
+    const cl = {nombre:d.nombre, cif:d.cif, via:d.via, cp:d.cp, loc:d.loc, prov:d.prov, email:d.email};
+    const chk = form.elements.guardarCli;
+    if(chk && chk.checked && !chk.disabled && d.cif && !esAso){
+      const prev = S.clientes.find(x=>x.cif===d.cif) || {};
+      await guardar('clientes/'+clave(d.cif), {...prev, ...cl, pais:'España', obs:prev.obs||''});
+    }
+    const creadas = await crearFacturas([facturaMulti(cl, L, {fecha:d.fecha, vto:d.vto||d.fecha,
+      periodo:d.periodo||'', regimen: T.iva?'':d.regimen, obs:d.obs,
+      tipoCliente: esAso?'asociado':'externo'})]);
+    cerrarPanel(); vista='facturas'; pintar();
+    brindis(`Factura ${creadas[0].num} emitida por ${eur(creadas[0].total)}.`);
+    return;
+  }
+
+  /* --- guardar los cambios de una factura ya emitida --- */
+  if(t.dataset.guardarFac){
+    const prev = S.facturas.find(x=>x.id===t.dataset.guardarFac); if(!prev) return;
+    const form = document.getElementById('form-fac-suelta');
+    if(!form.reportValidity()) return;
+    const d = datosForm(form);
+    const L = leerLineas().map(normLinea).filter(l=>l.concepto || l.base);
+    if(!L.length){ brindis('Añade al menos una línea con concepto e importe.'); return; }
+    if(L.some(l=>!l.concepto)){ brindis('Hay alguna línea sin concepto.'); return; }
+    const T = totalesDe(L);
+    if(!T.total){ brindis('El total de la factura sale a cero: revisa los precios.'); return; }
+    if(prev.remesaId && r2(+prev.total||0)!==T.total &&
+       !confirm(`Esta factura está en la remesa ${prev.remesaId} por ${eur(prev.total)}. Si cambias el importe a ${eur(T.total)}, la remesa ya generada sigue con el importe antiguo. ¿Sigo?`)) return;
+    const esAso = S.asociados.some(a=>a.cif===d.cif);
+    const cl = {nombre:d.nombre, cif:d.cif, via:d.via, cp:d.cp, loc:d.loc, prov:d.prov, email:d.email};
+    const chk = form.elements.guardarCli;
+    if(chk && chk.checked && !chk.disabled && d.cif && !esAso){
+      const c0 = S.clientes.find(x=>x.cif===d.cif) || {};
+      await guardar('clientes/'+clave(d.cif), {...c0, ...cl, pais:'España', obs:c0.obs||''});
+    }
+    const nueva = facturaMulti(cl, L, {fecha:d.fecha, vto:d.vto||d.fecha, periodo:d.periodo||'',
+      regimen: T.iva?'':d.regimen, obs:d.obs, tipoCliente: esAso?'asociado':'externo'});
+    const ok = await guardar('facturas/'+prev.id, {...prev, ...nueva,
+      num:prev.num, estado:prev.estado||'Pendiente', fcobro:prev.fcobro||'', banco:prev.banco||'',
+      formaCobro:prev.formaCobro||'', remesaId:prev.remesaId||'', creada:prev.creada||'',
+      modificada:new Date().toISOString()});
+    if(ok){ cerrarPanel(); brindis(`Factura ${prev.num} actualizada: ${eur(nueva.total)}.`); }
+    return;
+  }
+
+  /* --- cobro --- */
+  if(t.hasAttribute('data-guardar-cobro')){
+    const form = document.getElementById('form-cobro');
+    const d = datosForm(form);
+    const f = S.facturas.find(x=>x.id===form.dataset.id); if(!f) return;
+    await guardar('facturas/'+f.id, {...f, estado:d.estado, fcobro:d.fcobro, banco:d.banco, formaCobro:d.formaCobro, obs:d.obs});
+    cerrarPanel(); brindis('Cobro actualizado.');
+    return;
+  }
+  if(t.dataset.anularFac){
+    if(!confirm('¿Anular esta factura? Se queda en el listado como Anulada y su número no se reutiliza.')) return;
+    const f = S.facturas.find(x=>x.id===t.dataset.anularFac); if(!f) return;
+    await guardar('facturas/'+f.id, {...f, estado:'Anulada'});
+    cerrarPanel(); brindis('Factura anulada.');
+    return;
+  }
+  if(t.dataset.pdfFac){
+    const f = S.facturas.find(x=>x.id===t.dataset.pdfFac); if(!f) return;
+    const blob = pdfFactura(f);
+    if(blob) await descargar(`${f.num} ${sepaTxt(f.nombre,40)}.pdf`, blob);
+    return;
+  }
+
+  /* --- crear remesa --- */
+  if(t.hasAttribute('data-crear-remesa')){
+    const form = document.getElementById('form-remesa');
+    if(!form.reportValidity()) return;
+    const d = datosForm(form);
+    const sel = [...form.querySelectorAll('input[name="sel"]:checked')].map(i=>i.value);
+    if(!sel.length){ brindis('No has marcado ningún recibo.'); return; }
+    t.disabled = true; t.textContent = 'Generando…';
+    const c = S.config;
+    const lineas = sel.map(id=>{
+      const f = S.facturas.find(x=>x.id===id), a = asoDe(f);
+      return {num:f.num, cif:f.cif, nombre:f.nombre, iban:ibanLimpio(a.iban),
+        mandato:a.mandato||a.cif, fechaMandato:a.fechaMandato||'',
+        secuencia:a.secuencia||'RCUR', concepto:f.concepto, importe:+f.total||0,
+        dir:[a.via,a.cp,a.loc].filter(Boolean).join(' ')};
+    });
+    const [aa,mm,dd] = d.fechaCargo.split('-');
+    const id = clave(`REMESA-SEPA-${dd}-${mm}-${aa}`);   // sin espacios: es el id del documento
+    const pre = ENT===ENT_BASE ? '' : ENT+' ';
+    const nombre = `${pre}REMESA SEPA ${dd}-${mm}-${aa}`; // el nombre visible y el del fichero
+    const remesa = {nombre, fechaCargo:d.fechaCargo, ibanCargo:c.ibanCargo, bic:c.bic,
+      idAcreedor:c.idAcreedor, lineas, importe:r2(lineas.reduce((s,l)=>s+l.importe,0)),
+      secuencias:[...new Set(lineas.map(l=>l.secuencia))], estado:'Enviada', creada:new Date().toISOString()};
+    await guardar('remesas/'+id, remesa);
+    for(const l of lineas){
+      const f = S.facturas.find(x=>x.num===l.num);
+      await guardar('facturas/'+f.id, {...f, estado:'En remesa', remesaId:id, formaCobro:'Recibo domiciliado'});
+    }
+    /* los primeros adeudos pasan a sucesivos */
+    for(const l of lineas.filter(l=>l.secuencia==='FRST')){
+      const a = S.asociados.find(x=>x.cif===l.cif);
+      if(a) await guardar('asociados/'+a.id, {...a, secuencia:'RCUR'});
+    }
+    cerrarPanel(); vista='remesas'; pintar();
+    brindis(`Remesa creada: ${lineas.length} adeudos por ${eur(remesa.importe)}.`);
+    setTimeout(()=>panelVerRemesa(id), 300);
+    return;
+  }
+  if(t.dataset.xmlRemesa){
+    const r = S.remesas.find(x=>x.id===t.dataset.xmlRemesa); if(!r) return;
+    const xml = construirXmlAdeudos(r);
+    await descargar(r.nombre+'.zip', zip([{nombre:r.nombre+'.xml', datos:xml}]));
+    return;
+  }
+  if(t.dataset.csvRemesa){
+    const r = S.remesas.find(x=>x.id===t.dataset.csvRemesa); if(!r) return;
+    await descargar(r.nombre+'.csv', csvRemesa(r));
+    return;
+  }
+
+  /* --- devolución --- */
+  if(t.hasAttribute('data-guardar-devol')){
+    const form = document.getElementById('form-devol');
+    if(!form.reportValidity()) return;
+    const d = datosForm(form);
+    const id = form.dataset.id || clave('DEV-'+d.fecha.replace(/-/g,'')+'-'+String(Date.now()).slice(-4));
+    const f = d.numFactura ? S.facturas.find(x=>x.num===d.numFactura) : null;
+    const aIban = d.ibanDev ? S.asociados.find(x=>ibanLimpio(x.iban)===ibanLimpio(d.ibanDev)) : null;
+    await guardar('devoluciones/'+id, {fecha:d.fecha, fechaValor:d.fechaValor, banco:d.banco,
+      numFactura:d.numFactura, nombre:(f&&f.nombre)||d.nombre||(aIban?aIban.nombre:''),
+      cif:(f&&f.cif)||(aIban?aIban.cif:''), ibanDev:ibanLimpio(d.ibanDev),
+      importe:+d.importe||0, gastos:+d.gastos||0, estado:d.estado, obs:d.obs});
+    if(f && d.estado!=='Recuperada') await guardar('facturas/'+f.id, {...f, estado:'Devuelta', fcobro:'', obs:(f.obs?f.obs+' · ':'')+'Recibo devuelto el '+fechaES(d.fecha)});
+    if(f && d.estado==='Recuperada') await guardar('facturas/'+f.id, {...f, estado:'Cobrada'});
+    cerrarPanel(); brindis('Devolución registrada.');
+    return;
+  }
+  if(t.dataset.borrarDevol){
+    if(!confirm('¿Eliminar este registro de devolución?')) return;
+    if(await borrar('devoluciones/'+t.dataset.borrarDevol)){ cerrarPanel(); brindis('Devolución eliminada.'); }
+    return;
+  }
+});
+
+document.addEventListener('submit', async ev => {
+  if(ev.target.id !== 'form-ajustes') return;
+  ev.preventDefault();
+  const d = datosForm(ev.target);
+  const ok = await guardar(rutaConfig(ENT), {...S.config, ...d,
+    ibanCargo: ibanLimpio(d.ibanCargo), siguiente: +d.siguiente || siguienteNumero()});
+  if(ok) brindis('Ajustes guardados.');
+});
+
+document.addEventListener('input', ev => {
+  const id = ev.target.id;
+  if(ev.target.hasAttribute && ev.target.hasAttribute('data-linea')) return actualizarTotales();
+  if(id==='iban-aso') return revisarIban();
+  if(id==='iban-dev' || id==='importe-dev') return revisarDevolucion();
+  if(id==='q-aso'){ filtros.aso.q = ev.target.value; const p=ev.target.selectionStart; pintar();
+    const n=document.getElementById('q-aso'); if(n){n.focus(); n.setSelectionRange(p,p);} return; }
+  if(id==='q-fac'){ filtros.fac.q = ev.target.value; const p=ev.target.selectionStart; pintar();
+    const n=document.getElementById('q-fac'); if(n){n.focus(); n.setSelectionRange(p,p);} return; }
+  if(id==='q-cli'){ filtros.cli.q = ev.target.value; const p=ev.target.selectionStart; pintar();
+    const n=document.getElementById('q-cli'); if(n){n.focus(); n.setSelectionRange(p,p);} return; }
+});
+document.addEventListener('change', ev => {
+  const id = ev.target.id;
+  if(ev.target.hasAttribute && ev.target.hasAttribute('data-linea')) return actualizarTotales();
+  if(id==='origen-fac'){
+    const [k, ref] = String(ev.target.value||'').split(':');
+    const o = k==='aso' ? S.asociados.find(x=>x.id===ref)
+            : k==='cli' ? S.clientes.find(x=>x.id===ref) : null;
+    const pon = (campo, val) => { const el = document.getElementById(campo+'-fac'); if(el) el.value = val || ''; };
+    ['nombre','cif','email','via','cp','loc','prov'].forEach(c=>pon(c, o && o[c]));
+    const chk = document.getElementById('guardar-cli-fac');
+    if(chk){
+      chk.disabled = (k==='aso');
+      if(chk.disabled) chk.checked = false;
+      const lab = chk.closest('label'); if(lab) lab.style.opacity = chk.disabled ? .45 : 1;
+    }
+    return;
+  }
+  if(id==='sel-ent'){
+    const e = ev.target.value;
+    if(e && e!==ENT){ ENT = e; cerrarPanel(); refrescar(); pintar(); brindis('Ahora estás en '+ENT+'.'); }
+    return;
+  }
+  if(id==='logo-ajustes'){
+    const file = ev.target.files && ev.target.files[0];
+    if(!file) return;
+    if(file.size > 300*1024){ brindis('El logo no puede pasar de 300 KB.'); ev.target.value=''; return; }
+    const lector = new FileReader();
+    lector.onload = async () => {
+      const ok = await guardar(rutaConfig(ENT), {...S.config, logo:String(lector.result)});
+      if(ok) brindis('Logo guardado.');
+    };
+    lector.readAsDataURL(file);
+    return;
+  }
+  if(id==='forma-aso'){ filtros.aso.forma = ev.target.value; pintar(); }
+  else if(id==='tipo-aso'){ filtros.aso.tipo = ev.target.value; pintar(); }
+  else if(id==='estado-aso'){ filtros.aso.estado = ev.target.value; pintar(); }
+  else if(id==='estado-fac'){ filtros.fac.estado = ev.target.value; pintar(); }
+  else if(id==='trim-fac'){ filtros.fac.trim = ev.target.value; pintar(); }
+  else if(id==='modo-cuotas' || id==='trim-cuotas'){
+    const f = document.getElementById('form-cuotas');
+    panelCuotas(f.elements.modo.value, f.elements.trim.value);
+  }
+  else if(id==='periodicidad-aso'){ /* solo informativo */ }
+});
+function ocultarAcceso(){
+  const c = document.getElementById('acceso'); if(c) c.hidden = true;
+  const a = document.getElementById('app'); if(a) a.hidden = false;
+}
+function pintarAcceso(html){
+  const a = document.getElementById('app'); if(a) a.hidden = true;
+  const c = document.getElementById('acceso');
+  c.hidden = false; c.innerHTML = html;
+}
+function pantallaAcceso(aviso){
+  pintarAcceso(`
+    <form class="caja-acceso" id="form-acceso">
+      <h1>Facturación</h1>
+      <p class="dim">ANFALUM · ASEFACOL</p>
+      <label class="campo"><span>Correo</span>
+        <input name="email" type="email" required autocomplete="username" autofocus></label>
+      <label class="campo"><span>Contraseña</span>
+        <input name="clave" type="password" required autocomplete="current-password"></label>
+      ${aviso?`<p class="ayuda mal">${esc(aviso)}</p>`:''}
+      <button class="btn pri" type="submit" style="width:100%;text-align:center">Entrar</button>
+      <p class="ayuda" style="margin:14px 0 0">No hay registro abierto: las altas se dan desde el panel de la base de datos.</p>
+    </form>`);
+}
+function pantallaConfig(aviso){
+  pintarAcceso(`
+    <form class="caja-acceso" id="form-config">
+      <h1>Primer arranque</h1>
+      <p class="dim">Hace falta la base de datos donde se guarda todo.</p>
+      <label class="campo"><span>URL del proyecto</span>
+        <input name="url" required placeholder="https://xxxxxxxx.supabase.co" value="${esc(CFG.url)}"></label>
+      <label class="campo"><span>Clave publicable</span>
+        <input name="key" required placeholder="sb_publishable_… o eyJhbGciOi…" value="${esc(CFG.key)}"></label>
+      ${aviso?`<p class="ayuda mal">${esc(aviso)}</p>`:''}
+      <button class="btn pri" type="submit" style="width:100%;text-align:center">Guardar y entrar</button>
+      <p class="ayuda" style="margin:14px 0 0">Se queda guardado en este navegador. La clave publicable está pensada para ir a la vista: lo que protege los datos es la contraseña de cada usuario.</p>
+    </form>`);
+}
+
+document.addEventListener('submit', async ev => {
+  if(ev.target.id === 'form-acceso'){
+    ev.preventDefault();
+    const d = datosForm(ev.target);
+    const btn = ev.target.querySelector('button[type="submit"]');
+    btn.disabled = true; btn.textContent = 'Entrando…';
+    const {error} = await sb.auth.signInWithPassword({email:d.email, password:d.clave});
+    if(error){ pantallaAcceso(error.message==='Invalid login credentials'
+        ? 'El correo o la contraseña no son correctos.' : error.message); return; }
+    location.reload();
+  }
+  if(ev.target.id === 'form-config'){
+    ev.preventDefault();
+    const d = datosForm(ev.target);
+    try{
+      localStorage.setItem('sb_url', d.url.replace(/\/+$/,''));
+      localStorage.setItem('sb_key', d.key);
+    }catch(e){ pantallaConfig('Este navegador no deja guardar la configuración.'); return; }
+    location.reload();
+  }
+});
+
+document.addEventListener('keydown', ev => { if(ev.key==='Escape') cerrarPanel(); });
+
+pintar();
+arrancar();
+})();
+
+</script>
+</body>
+</html>
